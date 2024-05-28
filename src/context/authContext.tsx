@@ -22,7 +22,8 @@ import {
 import axios from "../services/axios";
 import { useQueryClient } from "react-query";
 import Swal from "sweetalert2";
-import Router from "next/router";
+// import Router from "next/router";
+import { useRouter } from 'next/navigation'
 import { Password } from "@mui/icons-material";
 
 interface IAuthProviderProps {
@@ -36,6 +37,7 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     const [isRegistered, setRegistered] = useState<boolean>(false);
     const [isPreparingApp, setPreparingApp] = useState<boolean>(true);
     const [isLoading, setLoading] = useState<boolean>(false);
+    const Router = useRouter();
     const cookies = useMemo(() => new Cookies(), []);
     const queryClient = useQueryClient();
 
@@ -209,24 +211,22 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
         async (values: RegistrasiForm) => {
             setLoading(true);
             try {
-                const formData = new FormData();
-                formData.append("nama", values.nama);
-                formData.append("username", values.username);
-                formData.append("email", values.email);
-                formData.append("password", values.password);
                 const { data } = await axios.post<RegistrasiResponse>(
-                    "/api/register",
-                    formData,
+                    "users/",
+                    {
+                        email: values.email,
+                        username: values.username,
+                        password: values.password,
+                    },
                     {
                         headers: {
-                            "Content-Type": "multipart/form-data",
+                            "Content-Type": "application/x-www-form-urlencoded",
                         },
                     },
                 );
-                if (data.code === 200) {
-                    setAuthenticated(true);
-                    handleSetToken(data.data.token);
-                    Router.push("/home");
+                console.log(data.message);
+                if (data.message) {
+                    Router.push("/");
                     // checkToken(data.data.token);
                 }
                 setLoading(false);

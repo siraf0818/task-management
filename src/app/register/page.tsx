@@ -24,13 +24,15 @@ import { useTheme } from "@mui/material/styles";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
 import { useAuth } from "@/context/authContext";
-import LoadingOverlay from "./components/LoadingOverlay/LoadingOverlay";
+import LoadingOverlay from "../components/LoadingOverlay/LoadingOverlay";
 import PublicRoute from "@/routes/PublicRoute";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-interface ILoginInputs {
+interface IRegisterInputs {
   email: string;
+  username: string;
   password: string;
+  passwordUlang: string;
 }
 
 const schema = yup
@@ -39,19 +41,25 @@ const schema = yup
       .string()
       .email("Format email salah")
       .required("Kolom wajib diisi"),
+    username: yup
+      .string()
+      .required("Kolom wajib diisi"),
     password: yup.string().required("Kolom wajib diisi"),
+    passwordUlang: yup.string().required("Kolom wajib diisi")
+      .oneOf([yup.ref("password")], "Kata sandi tidak sama"),
   })
   .required();
 
-const Login: NextPage = () => {
+const Register: NextPage = () => {
   const theme = useTheme();
   const isTabletScreen = useMediaQuery(theme.breakpoints.down("md"));
   const isLaptopScreen = useMediaQuery(theme.breakpoints.up("md"));
   const isDesktopScreen = useMediaQuery(theme.breakpoints.up("xl"));
-  const { login, isLoading } = useAuth();
+  const { register, isLoading } = useAuth();
   const [saveEmail, setSaveEmail] = React.useState(false);
   const [initEmail, setInitEmail] = React.useState<string | null>();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [showPasswordUlang, setShowPasswordUlang] = React.useState(false);
   const thisYear = new Date().getFullYear();
   const [isOpenModalLupaPassword, setIsOpenModalLupaPassword] =
     React.useState(false);
@@ -61,6 +69,10 @@ const Login: NextPage = () => {
 
   const handleClickShowPassword = () => {
     setShowPassword((prev) => !prev);
+  };
+
+  const handleClickShowPasswordUlang = () => {
+    setShowPasswordUlang((prev) => !prev);
   };
 
   const initialValues = React.useMemo(
@@ -77,7 +89,7 @@ const Login: NextPage = () => {
     watch,
     reset,
     formState: { errors },
-  } = useForm<ILoginInputs>({
+  } = useForm<IRegisterInputs>({
     resolver: yupResolver(schema),
     defaultValues: initialValues,
   });
@@ -108,8 +120,8 @@ const Login: NextPage = () => {
     }
   }, [reset]);
 
-  const onSubmit = (data: ILoginInputs) => {
-    login(data);
+  const onSubmit = (data: IRegisterInputs) => {
+    register(data);
     if (saveEmail) {
       localStorage.setItem("email", watchEmail);
     } else {
@@ -148,7 +160,7 @@ const Login: NextPage = () => {
               textAlign="center"
               fontWeight="bold"
             >
-              Welcome{" "}
+              Register{" "}
             </Typography>
             <form
               style={{
@@ -177,7 +189,7 @@ const Login: NextPage = () => {
                       >
                         <OutlinedInput
                           id="email"
-                          // type="email"
+                          type="email"
                           autoComplete="email"
                           autoFocus={isLaptopScreen}
                           placeholder="email@gmail.com"
@@ -196,6 +208,45 @@ const Login: NextPage = () => {
                       </FormControl>
                     )}
                     rules={{ required: "Email required" }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography
+                    marginBottom={1}
+                    variant="body1"
+                  >
+                    Username
+                  </Typography>
+                  <Controller
+                    name="username"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        variant="outlined"
+                        error={Boolean(errors.email)}
+                      >
+                        <OutlinedInput
+                          id="username"
+                          // type="email"
+                          autoComplete="username"
+                          autoFocus={isLaptopScreen}
+                          placeholder="bagus"
+                          size="medium"
+                          sx={{ borderRadius: 2 }}
+                          {...field}
+                        />
+                        {errors.email && (
+                          <FormHelperText>
+                            {errors.username
+                              ? errors.username
+                                .message
+                              : " "}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+                    rules={{ required: "Username required" }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -257,33 +308,74 @@ const Login: NextPage = () => {
                       </FormControl>
                     )}
                     rules={{
-                      required: "Passwors required",
+                      required: "Passwords required",
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography
+                    marginBottom={1}
+                    variant="body1"
+                  >
+                    Ulang Kata Sandi
+                  </Typography>
+                  <Controller
+                    name="passwordUlang"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        variant="outlined"
+                        error={Boolean(errors.password)}
+                      >
+                        <OutlinedInput
+                          id="passwordUlang"
+                          type={
+                            showPasswordUlang
+                              ? "text"
+                              : "password"
+                          }
+                          sx={{ borderRadius: 2 }}
+                          autoComplete="passwordUlang"
+                          placeholder="Min 8 character"
+                          endAdornment={
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={
+                                  handleClickShowPasswordUlang
+                                }
+                                edge="end"
+                                sx={{
+                                  color: "#A8B4AF",
+                                }}
+                              >
+                                {showPasswordUlang ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          }
+                          size="medium"
+                          {...field}
+                        />
+                        {errors.passwordUlang && (
+                          <FormHelperText>
+                            {errors.passwordUlang
+                              ? errors.passwordUlang
+                                .message
+                              : " "}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+                    rules={{
+                      required: "Passwords required",
                     }}
                   />
                 </Grid>
               </Grid>
-              <Box
-                width="100%"
-                display="flex"
-                justifyContent="flex-start"
-                marginTop={2}
-              >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={saveEmail}
-                      onChange={(_, checked) => {
-                        handleSaveEmail(checked);
-                      }}
-                    />
-                  }
-                  label="Simpan Informasi Login"
-                  sx={{
-                    color: "#464E4B",
-                    fontWeight: 400,
-                  }}
-                />
-              </Box>
               <Button
                 disableElevation
                 type="submit"
@@ -293,24 +385,10 @@ const Login: NextPage = () => {
                 sx={{
                   textTransform: "none",
                   marginTop: 3.5,
-                  maxWidth: "500px",
+                  // maxWidth: "500px",
                 }}
               >
-                Login
-              </Button>
-              <Button
-                href="/register"
-                disableElevation
-                fullWidth
-                size="large"
-                variant="outlined"
-                sx={{
-                  textTransform: "none",
-                  marginTop: 3.5,
-                  maxWidth: "500px",
-                }}
-              >
-                Register
+                Daftar
               </Button>
             </form>
           </Stack>
@@ -341,4 +419,4 @@ const Login: NextPage = () => {
   );
 };
 
-export default Login;
+export default Register;

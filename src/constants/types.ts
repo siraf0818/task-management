@@ -4,10 +4,8 @@ export interface LoginBody {
 }
 
 export interface RegistrasiForm {
-  nama: string;
   username: string;
   email: string;
-  no_telp: string;
   password: string;
   passwordUlang: string;
 }
@@ -46,22 +44,7 @@ export interface LoginResponse {
 }
 
 export interface RegistrasiResponse {
-  code: number;
   message: string;
-  data: {
-    nama: string;
-    username: string;
-    email: string;
-    alamat: string;
-    no_telp: string;
-    role: string;
-    status: number;
-    gambar: string | null;
-    updated_at: string;
-    created_at: string;
-    id: number;
-    token: string;
-  };
 }
 
 export interface ErrorsFieldResponse {
