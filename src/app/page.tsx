@@ -1,95 +1,330 @@
+'use client'
+import * as React from "react";
+import Head from "next/head";
 import Image from "next/image";
-import styles from "./page.module.css";
+import type { NextPage } from "next";
+import Link from "@/app/Link";
+import * as yup from "yup";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import FormControl from "@mui/material/FormControl";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import FormHelperText from "@mui/material/FormHelperText";
+import InputAdornment from "@mui/material/InputAdornment";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { useTheme } from "@mui/material/styles";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Visibility from "@mui/icons-material/Visibility";
+import { useAuth } from "@/context/authContext";
+import LoadingOverlay from "./components/LoadingOverlay/LoadingOverlay";
+import PublicRoute from "@/routes/PublicRoute";
+import LoadingButton from "@mui/lab/LoadingButton";
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+interface ILoginInputs {
+  email: string;
+  password: string;
 }
+
+const schema = yup
+  .object({
+    email: yup
+      .string()
+      // .email("Format email salah")
+      .required("Kolom wajib diisi"),
+    password: yup.string().required("Kolom wajib diisi"),
+  })
+  .required();
+
+const Login: NextPage = () => {
+  const theme = useTheme();
+  const isTabletScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const isLaptopScreen = useMediaQuery(theme.breakpoints.up("md"));
+  const isDesktopScreen = useMediaQuery(theme.breakpoints.up("xl"));
+  const { login, isLoading } = useAuth();
+  const [saveEmail, setSaveEmail] = React.useState(false);
+  const [initEmail, setInitEmail] = React.useState<string | null>();
+  const [showPassword, setShowPassword] = React.useState(false);
+  const thisYear = new Date().getFullYear();
+  const [isOpenModalLupaPassword, setIsOpenModalLupaPassword] =
+    React.useState(false);
+
+  const openModalLupaPassword = () => setIsOpenModalLupaPassword(true);
+  const closeModalLupaPassword = () => setIsOpenModalLupaPassword(false);
+
+  const handleClickShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const initialValues = React.useMemo(
+    () => ({
+      email: initEmail ?? "",
+      password: "",
+    }),
+    [initEmail],
+  );
+
+  const {
+    handleSubmit,
+    control,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<ILoginInputs>({
+    resolver: yupResolver(schema),
+    defaultValues: initialValues,
+  });
+
+  const watchEmail = watch("email");
+
+  const handleSaveEmail = (checked: boolean) => {
+    if (checked) {
+      setSaveEmail(true);
+    } else {
+      setSaveEmail(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (localStorage.getItem("email")) {
+      setSaveEmail(true);
+    } else {
+      setSaveEmail(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (localStorage.getItem("email")) {
+      reset({ email: localStorage.getItem("email") ?? "", password: "" });
+    } else {
+      setInitEmail("");
+    }
+  }, [reset]);
+
+  const onSubmit = (data: ILoginInputs) => {
+    login(data);
+    if (saveEmail) {
+      localStorage.setItem("email", watchEmail);
+    } else {
+      localStorage.removeItem("email");
+    }
+  };
+
+  return (
+    <PublicRoute>
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        sx={{ height: "100vh", backgroundColor: "#FFF" }}
+      >
+        <Box
+          display={isTabletScreen ? "flex" : "grid"}
+          gridTemplateColumns={isTabletScreen ? undefined : "1fr 1fr"}
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          gap={8}
+          padding={isTabletScreen ? 3 : undefined}
+          sx={{ backgroundColor: "#FFF" }}
+        >
+          <Stack
+            alignItems={"flex-start"}
+            padding={isTabletScreen ? undefined : 3}
+          >
+            <Typography
+              marginTop={3}
+              marginBottom={4.5}
+              variant="h4"
+              component="div"
+              textAlign="center"
+              fontWeight="bold"
+            >
+              Welcome{" "}
+            </Typography>
+            <form
+              style={{
+                width: "100%",
+                maxWidth: "580px",
+                minWidth: "200px",
+              }}
+              onSubmit={handleSubmit(onSubmit)}
+            >
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography
+                    marginBottom={1}
+                    variant="body1"
+                  >
+                    Email
+                  </Typography>
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        variant="outlined"
+                        error={Boolean(errors.email)}
+                      >
+                        <OutlinedInput
+                          id="email"
+                          // type="email"
+                          autoComplete="email"
+                          autoFocus={isLaptopScreen}
+                          placeholder="email@gmail.com"
+                          size="medium"
+                          sx={{ borderRadius: 2 }}
+                          {...field}
+                        />
+                        {errors.email && (
+                          <FormHelperText>
+                            {errors.email
+                              ? errors.email
+                                .message
+                              : " "}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+                    rules={{ required: "Email required" }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography
+                    marginBottom={1}
+                    variant="body1"
+                  >
+                    Kata Sandi
+                  </Typography>
+                  <Controller
+                    name="password"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        variant="outlined"
+                        error={Boolean(errors.password)}
+                      >
+                        <OutlinedInput
+                          id="password"
+                          type={
+                            showPassword
+                              ? "text"
+                              : "password"
+                          }
+                          sx={{ borderRadius: 2 }}
+                          autoComplete="password"
+                          placeholder="Min 8 character"
+                          endAdornment={
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={
+                                  handleClickShowPassword
+                                }
+                                edge="end"
+                                sx={{
+                                  color: "#A8B4AF",
+                                }}
+                              >
+                                {showPassword ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          }
+                          size="medium"
+                          {...field}
+                        />
+                        {errors.password && (
+                          <FormHelperText>
+                            {errors.password
+                              ? errors.password
+                                .message
+                              : " "}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+                    rules={{
+                      required: "Passwors required",
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <Box
+                width="100%"
+                display="flex"
+                justifyContent="flex-start"
+                marginTop={2}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={saveEmail}
+                      onChange={(_, checked) => {
+                        handleSaveEmail(checked);
+                      }}
+                    />
+                  }
+                  label="Simpan Informasi Login"
+                  sx={{
+                    color: "#464E4B",
+                    fontWeight: 400,
+                  }}
+                />
+              </Box>
+              <Button
+                disableElevation
+                type="submit"
+                fullWidth
+                size="large"
+                variant="contained"
+                sx={{
+                  textTransform: "none",
+                  marginTop: 3.5,
+                  maxWidth: "500px",
+                }}
+              >
+                Login
+              </Button>
+            </form>
+          </Stack>
+          {isTabletScreen ? null : (
+            <Box>
+              {/* <Image
+                src="/images/IlustrasiMainMenu.png"
+                width={540}
+                height={650}
+                layout="responsive"
+                objectFit="contain"
+                alt="Ilustrasi Main"
+              /> */}
+              <Typography
+                variant="caption"
+                component="div"
+                sx={{ fontSize: 16, color: "#7C8883" }}
+                textAlign="center"
+              >
+                {`© ${thisYear}. All right reserved`}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Box>
+      <LoadingOverlay open={isLoading} />
+    </PublicRoute>
+  );
+};
+
+export default Login;

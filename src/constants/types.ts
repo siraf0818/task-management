@@ -29,7 +29,6 @@ export interface AuthState {
 export interface CheckToken {
   code: number;
   message: string;
-  countProUkm: number;
 }
 
 export interface LogoutResponse {
@@ -38,11 +37,12 @@ export interface LogoutResponse {
 }
 
 export interface LoginResponse {
-  code: number;
-  message: string;
-  data: {
-    token: string;
-  };
+  accessToken: string;
+  // code: number;
+  // message: string;
+  // data: {
+  //   token: string;
+  // };
 }
 
 export interface RegistrasiResponse {

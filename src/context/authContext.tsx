@@ -23,6 +23,7 @@ import axios from "../services/axios";
 import { useQueryClient } from "react-query";
 import Swal from "sweetalert2";
 import Router from "next/router";
+import { Password } from "@mui/icons-material";
 
 interface IAuthProviderProps {
     children: ReactNode;
@@ -106,12 +107,9 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     const logout = useCallback(async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get<LogoutResponse>("/api/logout");
-            if (data.code === 200) {
-                setAuthenticated(false);
-                handleRemoveToken();
-                queryClient.clear();
-            }
+            setAuthenticated(false);
+            handleRemoveToken();
+            queryClient.clear();
             setLoading(false);
         } catch (error) {
             handleErrorResponse(error);
@@ -122,25 +120,8 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     const checkToken = useCallback(
         async (token: string) => {
             try {
-                const { data } = await axios.get<CheckToken>(
-                    `/api/cektoken?token=${token}`,
-                );
-                console.log("checked");
-                console.log("data", data);
-                if (data.countProUkm > 0) {
-                    if (token && data.code === 200) {
-                        const { data: user } = await axios.get<UserResponse>(
-                            "/api/users",
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${token}`,
-                                },
-                            },
-                        );
-                        setAuthenticated(true);
-                    }
-                } else {
-                    logout();
+                if (token) {
+                    setAuthenticated(true);
                 }
             } catch (error) {
                 handleErrorResponse(error);
@@ -192,28 +173,32 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
 
     const login = useCallback(
         async (values: LoginBody) => {
+            console.log(values);
             setLoading(true);
             try {
-                const { data } = await axios.post<LoginResponse>("/api/login", {
-                    ...values,
-                    dashboard: 1,
-                });
-                console.log(`data`, data);
-                const { data: user } = await axios.get<UserResponse>(
-                    "/api/users",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${data.data.token}`,
-                        },
-                    },
+                const formData = new FormData();
+                formData.append("email", values.email);
+                formData.append("password", values.password);
+                console.log(formData);
+                const { data } = await axios.post<LoginResponse>(
+                    "users/login", {
+                    email: values.email,
+                    password: values.password,
+                }, {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }
                 );
-                if (data.code === 200) {
+                console.log(`data`, data);
+                if (data.accessToken) {
                     setAuthenticated(true);
-                    handleSetToken(data.data.token);
+                    handleSetToken(data.accessToken);
                 }
                 setLoading(false);
             } catch (error) {
                 setLoading(false);
+                console.log(error)
                 handleErrorResponse(error);
             }
         },
