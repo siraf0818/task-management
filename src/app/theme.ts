@@ -5,7 +5,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 declare module "@mui/material/styles" {
   interface Palette {
-    whatsapp: Palette["primary"];
     bolddanger: Palette["primary"];
     greyc4: Palette["primary"];
     lightblue: Palette["primary"];
@@ -17,7 +16,6 @@ declare module "@mui/material/styles" {
     lighterror: Palette["primary"];
   }
   interface PaletteOptions {
-    whatsapp: PaletteOptions["primary"];
     bolddanger: PaletteOptions["primary"];
     greyc4: PaletteOptions["primary"];
     lightblue: PaletteOptions["primary"];
@@ -32,7 +30,6 @@ declare module "@mui/material/styles" {
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
-    whatsapp: true;
     bolddanger: true;
     greyc4: true;
     lightblue: true;
@@ -54,14 +51,10 @@ const theme = createTheme(
         contrastText: "#fff",
       },
       secondary: {
-        main: "#19857b",
+        main: "#2f2f2f",
       },
       error: {
         main: "#ED4521",
-      },
-      whatsapp: {
-        main: "#399F3A",
-        contrastText: "#fff",
       },
       bolddanger: {
         main: "#E52828",

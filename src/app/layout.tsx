@@ -42,36 +42,38 @@ export default function RootLayout({
   const {
     emotionCache = clientSideEmotionCache,
   } = props;
-  // replace console.* for disable log on production
+
   if (process.env.NODE_ENV === "production") {
     console.log = () => { };
     console.error = () => { };
     console.debug = () => { };
   }
   return (
-    <QueryClientProvider client={queryClient}>
-      <CookiesProvider>
-        <CacheProvider value={emotionCache}>
-          <AppProvider>
-            <ThemeProvider theme={theme}>
-              <html lang="en">
-                <title>Task Management</title>
-                <Head>
-                  <meta
-                    name="viewport"
-                    content="initial-scale=1, width=device-width"
-                  />
-                </Head>
-                <body>{children}</body>
-              </html>
-            </ThemeProvider>
-          </AppProvider>
-        </CacheProvider>
-      </CookiesProvider>
-      <ReactQueryDevtools
-        initialIsOpen={false}
-        position="bottom-right"
-      />
-    </QueryClientProvider>
+    <html lang="en">
+      <title>Task Management</title>
+      <Head>
+        <meta
+          name="viewport"
+          content="initial-scale=1, width=device-width"
+        />
+      </Head>
+      <body>
+        <QueryClientProvider client={queryClient}>
+          <CookiesProvider>
+            <CacheProvider value={emotionCache}>
+              <AppProvider>
+                <ThemeProvider theme={theme}>
+                  {children}
+                </ThemeProvider>
+              </AppProvider>
+            </CacheProvider>
+          </CookiesProvider>
+          <ReactQueryDevtools
+            initialIsOpen={false}
+            position="bottom-right"
+          />
+        </QueryClientProvider>
+      </body>
+    </html>
   );
 }

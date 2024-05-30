@@ -3,7 +3,6 @@ import * as React from "react";
 import Head from "next/head";
 import Image from "next/image";
 import type { NextPage } from "next";
-import Link from "@/app/Link";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -27,6 +26,7 @@ import { useAuth } from "@/context/authContext";
 import LoadingOverlay from "./components/LoadingOverlay/LoadingOverlay";
 import PublicRoute from "@/routes/PublicRoute";
 import LoadingButton from "@mui/lab/LoadingButton";
+import Link from "next/link";
 
 interface ILoginInputs {
   email: string;
@@ -336,7 +336,7 @@ const Login: NextPage = () => {
           )}
         </Box>
       </Box>
-      <LoadingOverlay open={isLoading} />
+      {/* <LoadingOverlay open={isLoading} /> */}
     </PublicRoute>
   );
 };
