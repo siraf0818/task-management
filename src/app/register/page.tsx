@@ -385,10 +385,22 @@ const Register: NextPage = () => {
                 sx={{
                   textTransform: "none",
                   marginTop: 3.5,
-                  // maxWidth: "500px",
                 }}
               >
-                Daftar
+                Register
+              </Button>
+              <Button
+                href="/"
+                disableElevation
+                fullWidth
+                size="large"
+                variant="outlined"
+                sx={{
+                  textTransform: "none",
+                  marginTop: 3.5,
+                }}
+              >
+                Login
               </Button>
             </form>
           </Stack>

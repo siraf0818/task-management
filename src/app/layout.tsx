@@ -58,21 +58,21 @@ export default function RootLayout({
         />
       </Head>
       <body>
-        <QueryClientProvider client={queryClient}>
-          <CookiesProvider>
-            <CacheProvider value={emotionCache}>
-              <AppProvider>
-                <ThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
+          <QueryClientProvider client={queryClient}>
+            <CookiesProvider>
+              <CacheProvider value={emotionCache}>
+                <AppProvider>
                   {children}
-                </ThemeProvider>
-              </AppProvider>
-            </CacheProvider>
-          </CookiesProvider>
-          <ReactQueryDevtools
-            initialIsOpen={false}
-            position="bottom-right"
-          />
-        </QueryClientProvider>
+                </AppProvider>
+              </CacheProvider>
+            </CookiesProvider>
+            <ReactQueryDevtools
+              initialIsOpen={false}
+              position="bottom-right"
+            />
+          </QueryClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

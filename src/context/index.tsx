@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { AuthProvider } from "./authContext";
+import { ModalProvider } from "./modalContext";
 
 interface IindexProps {
     children: ReactNode;
@@ -8,7 +9,9 @@ interface IindexProps {
 const AppProvider = ({ children }: IindexProps) => {
     return (
         <AuthProvider>
-            {children}
+            <ModalProvider>
+                {children}
+            </ModalProvider>
         </AuthProvider>
     );
 };

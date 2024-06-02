@@ -37,7 +37,6 @@ const schema = yup
   .object({
     email: yup
       .string()
-      .email("Format email salah")
       .required("Kolom wajib diisi"),
     password: yup.string().required("Kolom wajib diisi"),
   })
@@ -53,11 +52,6 @@ const Login: NextPage = () => {
   const [initEmail, setInitEmail] = React.useState<string | null>();
   const [showPassword, setShowPassword] = React.useState(false);
   const thisYear = new Date().getFullYear();
-  const [isOpenModalLupaPassword, setIsOpenModalLupaPassword] =
-    React.useState(false);
-
-  const openModalLupaPassword = () => setIsOpenModalLupaPassword(true);
-  const closeModalLupaPassword = () => setIsOpenModalLupaPassword(false);
 
   const handleClickShowPassword = () => {
     setShowPassword((prev) => !prev);
@@ -293,7 +287,6 @@ const Login: NextPage = () => {
                 sx={{
                   textTransform: "none",
                   marginTop: 3.5,
-                  maxWidth: "500px",
                 }}
               >
                 Login
@@ -307,7 +300,6 @@ const Login: NextPage = () => {
                 sx={{
                   textTransform: "none",
                   marginTop: 3.5,
-                  maxWidth: "500px",
                 }}
               >
                 Register

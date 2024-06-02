@@ -29,6 +29,7 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import DashboardIcon from "@mui/icons-material/dashboard";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
+import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {
@@ -41,6 +42,7 @@ import { useAuth } from "@/context/authContext";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@mdi/react';
 import { mdiPlus } from '@mdi/js';
+import { useModal } from "@/context/modalContext";
 
 interface Props {
     children: React.ReactNode;
@@ -55,6 +57,7 @@ type IExpanded = Expand;
 export default function PageLayout(props: Props) {
     const [isOpenModalLogout, setIsOpenModalLogout] = React.useState(false);
     const { logout, isLoading } = useAuth();
+    const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace } = useModal();
 
     const handleKeluar = () => {
         logout();
@@ -78,6 +81,17 @@ export default function PageLayout(props: Props) {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    const [anchorElC, setAnchorElC] = React.useState<null | HTMLElement>(null);
+
+    const openC = Boolean(anchorElC);
+    const handleClickC = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorElC(event.currentTarget);
+    };
+    const handleCloseC = () => {
+        setAnchorElC(null);
+    };
+
     const [expanded, setExpanded] = React.useState<IExpanded | false>(Expand.Workspace);
 
     const handleExpand = (param: IExpanded) => {
@@ -267,50 +281,6 @@ export default function PageLayout(props: Props) {
                             </ListItemButton>
                             <ListItemButton
                                 component={Link}
-                                href="/workspace/highlights"
-                                selected={
-                                    pathName === "/workspace/highlights"
-                                }
-                                sx={{
-                                    borderRadius: 2,
-                                    paddingY: 1,
-                                    gap: 1,
-                                    "&.Mui-selected": {
-                                        backgroundColor:
-                                            "secondary.main",
-                                    },
-                                }}
-                            >
-                                <FavoriteBorderIcon
-                                    sx={{
-                                        width: 24,
-                                        height: 24,
-                                        color:
-                                            pathName === "/workspace/highlights"
-                                                ? "secondary.main"
-                                                : "#7C8883",
-                                    }}
-                                />
-                                <ListItemText
-                                    disableTypography
-                                    primary={
-                                        <Typography
-                                            style={{
-                                                fontWeight: 500,
-                                                color:
-                                                    pathName ===
-                                                        "/workspace/highlights"
-                                                        ? "secondary.main"
-                                                        : "#7C8883",
-                                            }}
-                                        >
-                                            Highlights
-                                        </Typography>
-                                    }
-                                />
-                            </ListItemButton>
-                            <ListItemButton
-                                component={Link}
                                 href="/workspace/members"
                                 selected={
                                     pathName === "/workspace/members"
@@ -352,9 +322,14 @@ export default function PageLayout(props: Props) {
                                         </Typography>
                                     }
                                 />
-                                <Icon path={mdiPlus} size={1} color={pathName === "/workspace/members"
-                                    ? "secondary.main"
-                                    : "#7C8883"} />
+                                <IconButton onClick={(event) => {
+                                    event.preventDefault();
+                                    setIsOpenModalUser(true);
+                                }}>
+                                    <Icon path={mdiPlus} size={1} color={pathName === "/workspace/members"
+                                        ? "secondary.main"
+                                        : "#7C8883"} />
+                                </IconButton>
                             </ListItemButton>
                             <ListItemButton
                                 component={Link}
@@ -440,13 +415,91 @@ export default function PageLayout(props: Props) {
                             <Typography variant="h6" noWrap component="div">
                                 {"Project Manager"}
                             </Typography>
+                            <IconButton
+                                color="inherit"
+                                aria-label="open drawer"
+                                edge="end"
+                                size="small"
+                                onClick={handleClickC}
+                                sx={{ ml: 1, backgroundColor: isPhoneScreen ? "prymary.main" : "secondary.main", borderRadius: 2 }}
+                            >
+                                <Icon path={mdiPlus} size={1} color={"white"} />
+                            </IconButton>
+                            <Menu
+                                id="basic-menu"
+                                elevation={0}
+                                anchorEl={anchorElC}
+                                open={openC}
+                                onClose={handleCloseC}
+                                MenuListProps={{
+                                    "aria-labelledby": "basic-button",
+                                }}
+                                sx={{
+                                    "& .MuiPaper-root": {
+                                        borderRadius: 2,
+                                        borderStyle: "solid",
+                                        borderWidth: 1,
+                                        backgroundColor: "secondary.main",
+                                        borderColor: "secondary.main",
+                                        marginTop: theme.spacing(1),
+                                        "& .MuiMenuItem-root": {
+                                            padding: "12px, 20px, 12px, 20px",
+                                        },
+                                    },
+                                }}
+                            >
+                                <MenuItem
+                                    onClick={() => {
+                                        setIsOpenModalBoard(true);
+                                        handleCloseC();
+                                    }}
+                                >
+                                    <DashboardIcon
+                                        sx={{
+                                            width: 16,
+                                            height: 16,
+                                            color: "#c5c5c5",
+                                            marginRight: 1,
+                                        }}
+                                    />
+                                    <Typography
+                                        fontSize={14}
+                                        fontWeight={500}
+                                        color={"#c5c5c5"}
+                                    >
+                                        Create board
+                                    </Typography>
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        setIsOpenModalWorkspace(true);
+                                        handleCloseC();
+                                    }}
+                                    sx={{ borderTop: 1, borderColor: 'primary.main' }}
+                                >
+                                    <PeopleIcon
+                                        sx={{
+                                            width: 16,
+                                            height: 16,
+                                            color: "#c5c5c5",
+                                            marginRight: 1,
+                                        }}
+                                    />
+                                    <Typography
+                                        fontSize={14}
+                                        fontWeight={500}
+                                        color={"#c5c5c5"}
+                                    >
+                                        Create workspace
+                                    </Typography>
+                                </MenuItem>
+                            </Menu>
                         </Stack>
                         <IconButton
                             color="inherit"
                             aria-label="open drawer"
                             edge="end"
                             onClick={handleClick}
-                        // sx={{ mr: 2, display: { lg: "none" } }}
                         >
                             <Avatar
                                 sx={{
@@ -455,7 +508,6 @@ export default function PageLayout(props: Props) {
                                     height: 36,
                                 }}
                                 alt={"Bagus"}
-                            // src={"Bagus"}
                             >
                                 {avatarAlt("Bagus")}
                             </Avatar>
@@ -475,24 +527,54 @@ export default function PageLayout(props: Props) {
                                 borderRadius: 2,
                                 borderStyle: "solid",
                                 borderWidth: 1,
-                                borderColor: "#A8B4AF",
+                                backgroundColor: "secondary.main",
+                                borderColor: "secondary.main",
                                 marginTop: theme.spacing(1),
-                                width: "190px",
                                 "& .MuiMenuItem-root": {
-                                    padding: "12px, 24px, 12px, 24px",
+                                    padding: "12px, 20px, 12px, 20px",
                                 },
                             },
                         }}
                     >
+                        <Stack p={1.5} gap={1} flexDirection={'row'}>
+                            <Avatar
+                                sx={{
+                                    backgroundColor: "primary.main",
+                                    width: 46,
+                                    height: 46,
+                                }}
+                                alt={"Bagus"}
+                            >
+                                {avatarAlt("Bagus")}
+                            </Avatar>
+                            <Stack>
+                                <Typography
+                                    fontSize={14}
+                                    fontWeight={500}
+                                    color={"#c5c5c5"}
+                                >
+                                    Bagus
+                                </Typography>
+                                <Typography
+                                    fontSize={14}
+                                    fontWeight={500}
+                                    color={"#c5c5c5"}
+                                >
+                                    baguswijaksono291202@gmail.com
+                                </Typography>
+                            </Stack>
+                        </Stack>
                         <MenuItem
                             onClick={() => {
                                 openModalLogout();
                                 handleClose();
                             }}
+                            sx={{ borderTop: 1, borderColor: 'primary.main' }}
                         >
                             <Typography
+                                fontSize={14}
                                 fontWeight={500}
-                                color={"#464E4B"}
+                                color={"#c5c5c5"}
                             >
                                 Logout
                             </Typography>
@@ -550,6 +632,7 @@ export default function PageLayout(props: Props) {
             <Dialog
                 maxWidth="xs"
                 fullWidth={true}
+                fullScreen={isPhoneScreen}
                 open={isOpenModalLogout}
                 onClose={closeModalLogout}
                 PaperProps={{
@@ -563,61 +646,65 @@ export default function PageLayout(props: Props) {
                     direction="row"
                     alignItems="center"
                     justifyContent="space-between"
-                    padding={4.5}
+                    padding={isPhoneScreen ? 2.5 : 4.5}
                 >
                     <DialogTitle
                         sx={{ padding: 0 }}
                         fontSize={32}
                         fontWeight={700}
                     >
-                        Konfirmasi Keluar
+                        Logout
                     </DialogTitle>
-                    <IconButton
-                        aria-label="close"
-                        onClick={closeModalLogout}
-                        sx={{
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
+                    {!isPhoneScreen &&
+                        <IconButton
+                            aria-label="close"
+                            onClick={closeModalLogout}
+                            sx={{
+                                color: (theme) => theme.palette.grey[500],
+                            }}
+                        >
+                            <CloseIcon />
+                        </IconButton>}
                 </Stack>
                 <DialogContent
                     sx={{
                         borderTop:
                             "1px solid var(--text-primary-thin, #A8B4AF)",
-                        paddingTop: 4.5,
-                        paddingX: 4.5,
+                        paddingTop: isPhoneScreen ? 2.5 : 4.5,
+                        paddingX: isPhoneScreen ? 2.5 : 4.5,
                     }}
                 >
                     <Typography color={"#464E4B"}>
-                        Anda yakin ingin keluar dari akun dan kembali ke halaman
-                        masuk?
+                        Are you sure want to logout and go back to login screen?
                     </Typography>
                 </DialogContent>
                 <DialogActions
-                    sx={{ paddingX: 4.5, paddingBottom: 4.5, paddingTop: 3 }}
+                    sx={{ paddingX: isPhoneScreen ? 2.5 : 4.5, paddingBottom: isPhoneScreen ? 2.5 : 4.5, paddingTop: 3, flexDirection: isPhoneScreen ? 'column' : 'row' }}
                 >
+                    {isPhoneScreen &&
+                        <Button
+                            fullWidth={isPhoneScreen}
+                            variant="outlined"
+                            onClick={closeModalLogout}
+                            color="primary"
+                            sx={{
+                                fontWeight: "bold",
+                            }}
+                        >
+                            Cancel
+                        </Button>}
                     <Button
-                        variant="outlined"
-                        onClick={closeModalLogout}
-                        color="primary"
-                        sx={{
-                            fontWeight: "bold",
-                        }}
-                    >
-                        Kembali
-                    </Button>
-                    <Button
+                        fullWidth={isPhoneScreen}
                         variant="contained"
                         onClick={handleKeluar}
                         color="error"
                         sx={{
                             fontWeight: "bold",
+                            marginLeft: isPhoneScreen ? 0 : 16,
+                            marginTop: isPhoneScreen ? 2 : 0,
                         }}
-                        style={{ marginLeft: 16 }}
                     >
-                        Konfirmasi Keluar
+                        Logout
                     </Button>
                 </DialogActions>
             </Dialog>

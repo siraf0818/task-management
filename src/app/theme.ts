@@ -125,6 +125,16 @@ const theme = createTheme(
           }),
         },
       },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            backgroundColor: "#fff",
+            borderRadius: "8px",
+            border: "1px solid #A8B4AF",
+            color: "#464E4B",
+          },
+        },
+      },
       MuiAutocomplete: {
         styleOverrides: {
           root: {
@@ -132,7 +142,7 @@ const theme = createTheme(
           },
           inputRoot: {
             borderRadius: "8px",
-            border: "1px solid #A8B4AF)",
+            border: "1px solid #A8B4AF",
           },
           popupIndicator: {
             "& svg": {
@@ -147,7 +157,7 @@ const theme = createTheme(
         styleOverrides: {
           root: {
             "& .MuiOutlinedInput-root": {
-              border: "1px solid #A8B4AF)",
+              border: "1px solid #A8B4AF",
               borderRadius: "8px",
             },
             "& .MuiInputBase-root": {
