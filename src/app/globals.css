@@ -6,6 +6,10 @@
   z-index: 10000 !important;
 }
 
+body {
+  margin: 0;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 8px;
