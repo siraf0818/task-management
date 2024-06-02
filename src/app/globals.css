@@ -8,12 +8,15 @@
 
 body {
   margin: 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* width */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+  display: none;
 }
 
 /* Track */

@@ -46,6 +46,7 @@ declare module "@mui/material/Button" {
 const theme = createTheme(
   {
     palette: {
+      mode: "dark",
       primary: {
         main: "#252525",
         contrastText: "#fff",
@@ -128,21 +129,18 @@ const theme = createTheme(
       MuiOutlinedInput: {
         styleOverrides: {
           root: {
-            backgroundColor: "#fff",
             borderRadius: "8px",
-            border: "1px solid #A8B4AF",
-            color: "#464E4B",
+            // border: "1px solid #A8B4AF",
+            // color: "#464E4B",
           },
         },
       },
       MuiAutocomplete: {
         styleOverrides: {
-          root: {
-            backgroundColor: "#fff",
-          },
+          root: {},
           inputRoot: {
             borderRadius: "8px",
-            border: "1px solid #A8B4AF",
+            // border: "1px solid #A8B4AF",
           },
           popupIndicator: {
             "& svg": {
@@ -157,11 +155,11 @@ const theme = createTheme(
         styleOverrides: {
           root: {
             "& .MuiOutlinedInput-root": {
-              border: "1px solid #A8B4AF",
+              // border: "1px solid #A8B4AF",
               borderRadius: "8px",
             },
             "& .MuiInputBase-root": {
-              color: "#464E4B",
+              // color: "#464E4B",
             },
           },
         },
@@ -170,7 +168,7 @@ const theme = createTheme(
         styleOverrides: {
           root: ({ _, theme }) => ({
             "& .MuiButtonGroup-grouped": {
-              border: `2px solid ${theme.palette.primary.main}`,
+              // border: `2px solid ${theme.palette.primary.main}`,
             },
           }),
         },
@@ -179,12 +177,12 @@ const theme = createTheme(
         styleOverrides: {
           root: ({ _, theme }) => ({
             borderRadius: "8px",
-            color: theme.palette.primary.main,
-            border: `2px solid ${theme.palette.primary.main}`,
+            // color: theme.palette.primary.main,
+            // border: `2px solid ${theme.palette.primary.main}`,
             "&.Mui-selected": {
-              background: theme.palette.primary.main,
-              color: theme.palette.primary.contrastText,
-              border: `2px solid ${theme.palette.primary.main}`,
+              // background: theme.palette.primary.main,
+              // color: theme.palette.primary.contrastText,
+              // border: `2px solid ${theme.palette.primary.main}`,
               borderRadius: "8px",
             },
           }),

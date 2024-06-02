@@ -3,7 +3,7 @@ const avatarAlt = (value: string) => {
     .toUpperCase()
     .match(/\b(\w)/g)
     ?.join("")
-    .substring(0, 2);
+    .substring(0, 1);
   return ava;
 };
 

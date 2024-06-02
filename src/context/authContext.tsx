@@ -56,10 +56,10 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
                 console.log(`serverError`, serverError.response);
                 if (serverError.response!.status === 400) {
                     Swal.fire({
-                        title: "Terjadi Kesalahan!",
+                        title: "Something's Wrong!",
                         text: `${serverError.response.data.data.errors.message}`,
                         icon: "error",
-                        confirmButtonColor: "#45A779",
+                        confirmButtonColor: "primary",
                         customClass: {
                             container: "my-swal",
                         },
@@ -69,12 +69,26 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
                     ]);
                 }
 
+                if (serverError.response!.status === 401) {
+                    Swal.fire({
+                        title: `Wrong email or password`,
+                        icon: "error",
+                        confirmButtonColor: "primary",
+                        customClass: {
+                            container: "my-swal",
+                        },
+                    });
+                    console.log("", `${serverError.response.data.message}`, [
+                        { text: "OK" },
+                    ]);
+                }
+
                 if (serverError.response!.status === 422) {
                     Swal.fire({
-                        title: "Terjadi Kesalahan!",
+                        title: "Something's Wrong!",
                         text: `Ada error validasi`,
                         icon: "error",
-                        confirmButtonColor: "#45A779",
+                        confirmButtonColor: "primary",
                         customClass: {
                             container: "my-swal",
                         },
@@ -86,10 +100,10 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
 
                 if (serverError.response!.status === 403) {
                     Swal.fire({
-                        title: "Terjadi Kesalahan!",
+                        title: "Something's Wrong!",
                         text: `${serverError.response.data.message}`,
                         icon: "error",
-                        confirmButtonColor: "#45A779",
+                        confirmButtonColor: "primary",
                         customClass: {
                             container: "my-swal",
                         },
@@ -99,7 +113,7 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
                     ]);
                 }
             } else {
-                console.log("", `Terjadi kesalahan! Silahkan coba lagi.`, [
+                console.log("", `Something's Wrong! Silahkan coba lagi.`, [
                     { text: "OK" },
                 ]);
             }

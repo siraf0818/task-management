@@ -77,3 +77,35 @@ export type UserResponse = {
     email: string;
   };
 };
+
+export type GetUserDataResponse = {
+  user_id: number;
+  email: string;
+  username: string;
+  bio: string;
+  user_created_at: string;
+  user_updated_at: string;
+  role_id: number;
+  role_name: string;
+};
+
+export type GetWorkspaceResponse = {
+  membership_id: number;
+  workspace_id: number;
+  role_id: number;
+  workspace_name: string;
+  type_id: number;
+  workspace_type: string;
+  visibility_id: number;
+  workspace_visibility: string;
+  role_name: string;
+  membership_created_at: string;
+  membership_updated_at: string;
+}[];
+
+export type GetRecentBoardsResponse = {
+  board_id: number;
+  board_title: string;
+  workspace_id: number;
+  workspace_name: string;
+}[];

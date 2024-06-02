@@ -118,7 +118,7 @@ const Login: NextPage = () => {
         flexDirection="column"
         justifyContent="center"
         alignItems="center"
-        sx={{ height: "100vh", backgroundColor: "#FFF" }}
+        sx={{ height: "100vh" }}
       >
         <Box
           display={isTabletScreen ? "flex" : "grid"}
@@ -128,7 +128,6 @@ const Login: NextPage = () => {
           alignItems="center"
           gap={8}
           padding={isTabletScreen ? 3 : undefined}
-          sx={{ backgroundColor: "#FFF" }}
         >
           <Stack
             alignItems={"flex-start"}

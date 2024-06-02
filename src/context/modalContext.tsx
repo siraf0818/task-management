@@ -114,7 +114,6 @@ const ModalProvider = ({ children }: IModalContext) => {
                     <Stack flexDirection={"column"} gap={0.5}>
                         <Typography
                             fontWeight={500}
-                            color={"#464E4B"}
                         >
                             User
                         </Typography>
@@ -209,7 +208,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                         <Stack flexDirection={"column"} gap={0.5}>
                             <Typography
                                 fontWeight={500}
-                                color={"#464E4B"}
+
                             >
                                 Board title
                             </Typography>
@@ -221,7 +220,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                         <Stack flexDirection={"column"} gap={0.5}>
                             <Typography
                                 fontWeight={500}
-                                color={"#464E4B"}
+
                             >
                                 Workspace
                             </Typography>
@@ -237,7 +236,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                         <Stack flexDirection={"column"} gap={0.5}>
                             <Typography
                                 fontWeight={500}
-                                color={"#464E4B"}
+
                             >
                                 Visibility
                             </Typography>
@@ -333,7 +332,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                         <Stack flexDirection={"column"} gap={0.5}>
                             <Typography
                                 fontWeight={500}
-                                color={"#464E4B"}
+
                             >
                                 Workspace name
                             </Typography>
@@ -345,7 +344,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                         <Stack flexDirection={"column"} gap={0.5}>
                             <Typography
                                 fontWeight={500}
-                                color={"#464E4B"}
+
                             >
                                 Workspace type
                             </Typography>
@@ -361,7 +360,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                         <Stack flexDirection={"column"} gap={0.5}>
                             <Typography
                                 fontWeight={500}
-                                color={"#464E4B"}
+
                             >
                                 Workspace description{" "}
                                 <Typography

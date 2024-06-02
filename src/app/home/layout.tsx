@@ -43,21 +43,19 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@mdi/react';
 import { mdiPlus } from '@mdi/js';
 import { useModal } from "@/context/modalContext";
+import useWorkspace from "@/services/queries/useWorkspace";
+import useUserData from "@/services/queries/useUserData";
 
 interface Props {
     children: React.ReactNode;
 }
 
-enum Expand {
-    Workspace = "WORKSPACE",
-}
-
-type IExpanded = Expand;
-
 export default function PageLayout(props: Props) {
     const [isOpenModalLogout, setIsOpenModalLogout] = React.useState(false);
     const { logout, isLoading } = useAuth();
     const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace } = useModal();
+    const { data: dataWorkspace } = useWorkspace();
+    const { data: dataUser } = useUserData();
 
     const handleKeluar = () => {
         logout();
@@ -92,18 +90,17 @@ export default function PageLayout(props: Props) {
         setAnchorElC(null);
     };
 
-    const [expanded, setExpanded] = React.useState<IExpanded | false>(Expand.Workspace);
+    const [expanded, setExpanded] = React.useState<string>();
 
-    const handleExpand = (param: IExpanded) => {
+    const handleExpand = (param: string) => {
         if (param === expanded) {
-            setExpanded(false);
-        } else if (param === Expand.Workspace) {
-            localStorage.setItem("expandWorkspace", "true");
+            setExpanded(undefined);
+        } else {
             setExpanded(param);
         }
     };
 
-    const drawerWidth = 242;
+    const drawerWidth = 272;
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -134,6 +131,7 @@ export default function PageLayout(props: Props) {
                             gap: 1,
                             "&.Mui-selected": {
                                 backgroundColor: "white",
+                                color: "secondary.main",
                             },
                         }}
                     >
@@ -164,219 +162,219 @@ export default function PageLayout(props: Props) {
                             }
                         />
                     </ListItemButton>
-                    <ListItemButton
-                        // selected={
-                        //     pathName === "/workspace/boards" ||
-                        //     pathName === "/workspace/highlights" ||
-                        //     pathName === "/workspace/members" ||
-                        //     pathName === "/workspace/settings"
-                        // }
-                        onClick={() => handleExpand(Expand.Workspace)}
-                        sx={{
-                            paddingY: 2,
-                            paddingX: 1.5,
-                            borderRadius: 2,
-                            gap: 1,
-                            "&.Mui-selected": {
-                                backgroundColor: "rgba(43, 115, 81, 0)",
-                            },
-                        }}
-                    >
-                        <Avatar
-                            sx={{
-                                backgroundColor: "#7C8883",
-                                width: 30,
-                                height: 30,
-                            }}
-                            alt={"Workspace"} variant="rounded"
-                        >
-                            <Typography>{avatarAlt("Workspace")}</Typography>
-                        </Avatar>
-                        <ListItemText
-                            disableTypography
-                            primary={
-                                <Typography
-                                    style={{
-                                        fontWeight: 500,
-                                        color: "#7C8883",
+                    {dataWorkspace && dataWorkspace.map((dat, idx) => {
+                        return (
+                            <React.Fragment key={String(idx)}>
+                                <ListItemButton
+                                    onClick={() => handleExpand(dat.workspace_name)}
+                                    sx={{
+                                        paddingY: 2,
+                                        paddingX: 1.5,
+                                        borderRadius: 2,
+                                        gap: 1,
+                                        "&.Mui-selected": {
+                                            backgroundColor: "rgba(43, 115, 81, 0)",
+                                        },
                                     }}
                                 >
-                                    Workspace
-                                </Typography>
-                            }
-                        />
-                        {expanded === Expand.Workspace ? (
-                            <ExpandLess
-                                sx={{
-                                    width: 24,
-                                    height: 24,
-                                    color: "#A8B4AF",
-                                }}
-                            />
-                        ) : (
-                            <ExpandMore
-                                sx={{
-                                    width: 24,
-                                    height: 24,
-                                    color: "#A8B4AF",
-                                }}
-                            />
-                        )}
-                    </ListItemButton>
-                    <Collapse
-                        in={expanded === Expand.Workspace}
-                        timeout="auto"
-                        unmountOnExit
-                    >
-                        <List
-                            sx={{
-                                pl: 1,
-                            }}
-                            component="div"
-                            disablePadding
-                        >
-                            <ListItemButton
-                                component={Link}
-                                href="/workspace/boards"
-                                selected={
-                                    pathName === "/workspace/boards"
-                                }
-                                sx={{
-                                    borderRadius: 2,
-                                    paddingY: 1,
-                                    gap: 1,
-                                    "&.Mui-selected": {
-                                        backgroundColor:
-                                            "secondary.main",
-                                    },
-                                }}
-                            >
-                                <DashboardIcon
-                                    sx={{
-                                        width: 24,
-                                        height: 24,
-                                        color:
-                                            pathName === "/workspace/boards"
-                                                ? "secondary.main"
-                                                : "#7C8883",
-                                    }}
-                                />
-                                <ListItemText
-                                    disableTypography
-                                    primary={
-                                        <Typography
-                                            style={{
-                                                fontWeight: 500,
-                                                color:
-                                                    pathName ===
-                                                        "/workspace/boards"
-                                                        ? "secondary.main"
-                                                        : "#7C8883",
+                                    <Avatar
+                                        sx={{
+                                            backgroundColor: "#7C8883",
+                                            width: 30,
+                                            height: 30,
+                                        }}
+                                        alt={dat.workspace_name} variant="rounded"
+                                    >
+                                        <Typography>{avatarAlt(dat.workspace_name)}</Typography>
+                                    </Avatar>
+                                    <ListItemText
+                                        disableTypography
+                                        primary={
+                                            <Typography
+                                                style={{
+                                                    fontWeight: 500,
+                                                    color: "#7C8883",
+                                                }}
+                                            >
+                                                {dat.workspace_name}
+                                            </Typography>
+                                        }
+                                    />
+                                    {expanded === dat.workspace_name ? (
+                                        <ExpandLess
+                                            sx={{
+                                                width: 24,
+                                                height: 24,
+                                                color: "#A8B4AF",
+                                            }}
+                                        />
+                                    ) : (
+                                        <ExpandMore
+                                            sx={{
+                                                width: 24,
+                                                height: 24,
+                                                color: "#A8B4AF",
+                                            }}
+                                        />
+                                    )}
+                                </ListItemButton>
+                                <Collapse
+                                    in={expanded === dat.workspace_name}
+                                    timeout="auto"
+                                    unmountOnExit
+                                >
+                                    <List
+                                        sx={{
+                                            pl: 1,
+                                        }}
+                                        component="div"
+                                        disablePadding
+                                    >
+                                        <ListItemButton
+                                            component={Link}
+                                            href="/workspace/boards"
+                                            selected={
+                                                pathName === "/workspace/boards"
+                                            }
+                                            sx={{
+                                                borderRadius: 2,
+                                                paddingY: 1,
+                                                gap: 1,
+                                                "&.Mui-selected": {
+                                                    backgroundColor:
+                                                        "secondary.main",
+                                                },
                                             }}
                                         >
-                                            Boards
-                                        </Typography>
-                                    }
-                                />
-                            </ListItemButton>
-                            <ListItemButton
-                                component={Link}
-                                href="/workspace/members"
-                                selected={
-                                    pathName === "/workspace/members"
-                                }
-                                sx={{
-                                    borderRadius: 2,
-                                    paddingY: 1,
-                                    gap: 1,
-                                    "&.Mui-selected": {
-                                        backgroundColor:
-                                            "secondary.main",
-                                    },
-                                }}
-                            >
-                                <PeopleOutlineIcon
-                                    sx={{
-                                        width: 24,
-                                        height: 24,
-                                        color:
-                                            pathName === "/workspace/members"
-                                                ? "secondary.main"
-                                                : "#7C8883",
-                                    }}
-                                />
-                                <ListItemText
-                                    disableTypography
-                                    primary={
-                                        <Typography
-                                            style={{
-                                                fontWeight: 500,
-                                                color:
-                                                    pathName ===
-                                                        "/workspace/members"
-                                                        ? "secondary.main"
-                                                        : "#7C8883",
+                                            <DashboardIcon
+                                                sx={{
+                                                    width: 24,
+                                                    height: 24,
+                                                    color:
+                                                        pathName === "/workspace/boards"
+                                                            ? "secondary.main"
+                                                            : "#7C8883",
+                                                }}
+                                            />
+                                            <ListItemText
+                                                disableTypography
+                                                primary={
+                                                    <Typography
+                                                        style={{
+                                                            fontWeight: 500,
+                                                            color:
+                                                                pathName ===
+                                                                    "/workspace/boards"
+                                                                    ? "secondary.main"
+                                                                    : "#7C8883",
+                                                        }}
+                                                    >
+                                                        Boards
+                                                    </Typography>
+                                                }
+                                            />
+                                        </ListItemButton>
+                                        <ListItemButton
+                                            component={Link}
+                                            href="/workspace/members"
+                                            selected={
+                                                pathName === "/workspace/members"
+                                            }
+                                            sx={{
+                                                borderRadius: 2,
+                                                paddingY: 1,
+                                                gap: 1,
+                                                "&.Mui-selected": {
+                                                    backgroundColor:
+                                                        "secondary.main",
+                                                },
                                             }}
                                         >
-                                            Members
-                                        </Typography>
-                                    }
-                                />
-                                <IconButton onClick={(event) => {
-                                    event.preventDefault();
-                                    setIsOpenModalUser(true);
-                                }}>
-                                    <Icon path={mdiPlus} size={1} color={pathName === "/workspace/members"
-                                        ? "secondary.main"
-                                        : "#7C8883"} />
-                                </IconButton>
-                            </ListItemButton>
-                            <ListItemButton
-                                component={Link}
-                                href="/workspace/settings"
-                                selected={
-                                    pathName === "/workspace/settings"
-                                }
-                                sx={{
-                                    borderRadius: 2,
-                                    paddingY: 1,
-                                    gap: 1,
-                                    "&.Mui-selected": {
-                                        backgroundColor:
-                                            "secondary.main",
-                                    },
-                                }}
-                            >
-                                <SettingsIcon
-                                    sx={{
-                                        width: 24,
-                                        height: 24,
-                                        color:
-                                            pathName === "/workspace/settings"
-                                                ? "secondary.main"
-                                                : "#7C8883",
-                                    }}
-                                />
-                                <ListItemText
-                                    disableTypography
-                                    primary={
-                                        <Typography
-                                            style={{
-                                                fontWeight: 500,
-                                                color:
-                                                    pathName ===
-                                                        "/workspace/settings"
-                                                        ? "secondary.main"
-                                                        : "#7C8883",
+                                            <PeopleOutlineIcon
+                                                sx={{
+                                                    width: 24,
+                                                    height: 24,
+                                                    color:
+                                                        pathName === "/workspace/members"
+                                                            ? "secondary.main"
+                                                            : "#7C8883",
+                                                }}
+                                            />
+                                            <ListItemText
+                                                disableTypography
+                                                primary={
+                                                    <Typography
+                                                        style={{
+                                                            fontWeight: 500,
+                                                            color:
+                                                                pathName ===
+                                                                    "/workspace/members"
+                                                                    ? "secondary.main"
+                                                                    : "#7C8883",
+                                                        }}
+                                                    >
+                                                        Members
+                                                    </Typography>
+                                                }
+                                            />
+                                            <IconButton onClick={(event) => {
+                                                event.preventDefault();
+                                                setIsOpenModalUser(true);
+                                            }}>
+                                                <Icon path={mdiPlus} size={1} color={pathName === "/workspace/members"
+                                                    ? "secondary.main"
+                                                    : "#7C8883"} />
+                                            </IconButton>
+                                        </ListItemButton>
+                                        <ListItemButton
+                                            component={Link}
+                                            href="/workspace/settings"
+                                            selected={
+                                                pathName === "/workspace/settings"
+                                            }
+                                            sx={{
+                                                borderRadius: 2,
+                                                paddingY: 1,
+                                                gap: 1,
+                                                "&.Mui-selected": {
+                                                    backgroundColor:
+                                                        "secondary.main",
+                                                },
                                             }}
                                         >
-                                            Settings
-                                        </Typography>
-                                    }
-                                />
-                            </ListItemButton>
-                        </List>
-                    </Collapse>
+                                            <SettingsIcon
+                                                sx={{
+                                                    width: 24,
+                                                    height: 24,
+                                                    color:
+                                                        pathName === "/workspace/settings"
+                                                            ? "secondary.main"
+                                                            : "#7C8883",
+                                                }}
+                                            />
+                                            <ListItemText
+                                                disableTypography
+                                                primary={
+                                                    <Typography
+                                                        style={{
+                                                            fontWeight: 500,
+                                                            color:
+                                                                pathName ===
+                                                                    "/workspace/settings"
+                                                                    ? "secondary.main"
+                                                                    : "#7C8883",
+                                                        }}
+                                                    >
+                                                        Settings
+                                                    </Typography>
+                                                }
+                                            />
+                                        </ListItemButton>
+                                    </List>
+                                </Collapse>
+                            </React.Fragment>
+                        )
+                    })}
                 </List>
             </Box>
         </Stack>
@@ -389,7 +387,7 @@ export default function PageLayout(props: Props) {
                 paddingTop: isPhoneScreen
                     ? "56px"
                     : isLaptopScreen
-                        ? undefined
+                        ? "64px"
                         : "64px",
             }}
         >
@@ -506,10 +504,11 @@ export default function PageLayout(props: Props) {
                                     backgroundColor: "secondary.main",
                                     width: 36,
                                     height: 36,
+                                    color: 'white',
                                 }}
-                                alt={"Bagus"}
+                                alt={dataUser?.username ?? "-"}
                             >
-                                {avatarAlt("Bagus")}
+                                {avatarAlt(dataUser?.username ?? "A")}
                             </Avatar>
                         </IconButton>
                     </Stack>
@@ -542,10 +541,11 @@ export default function PageLayout(props: Props) {
                                     backgroundColor: "primary.main",
                                     width: 46,
                                     height: 46,
+                                    color: 'white',
                                 }}
-                                alt={"Bagus"}
+                                alt={dataUser?.username ?? "-"}
                             >
-                                {avatarAlt("Bagus")}
+                                {avatarAlt(dataUser?.username ?? "A")}
                             </Avatar>
                             <Stack>
                                 <Typography
@@ -553,14 +553,14 @@ export default function PageLayout(props: Props) {
                                     fontWeight={500}
                                     color={"#c5c5c5"}
                                 >
-                                    Bagus
+                                    {dataUser?.username ?? "-"}
                                 </Typography>
                                 <Typography
                                     fontSize={14}
                                     fontWeight={500}
                                     color={"#c5c5c5"}
                                 >
-                                    baguswijaksono291202@gmail.com
+                                    {dataUser?.email ?? "-"}
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -674,7 +674,7 @@ export default function PageLayout(props: Props) {
                         paddingX: isPhoneScreen ? 2.5 : 4.5,
                     }}
                 >
-                    <Typography color={"#464E4B"}>
+                    <Typography>
                         Are you sure want to logout and go back to login screen?
                     </Typography>
                 </DialogContent>
