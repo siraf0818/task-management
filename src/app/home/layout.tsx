@@ -413,7 +413,7 @@ export default function PageLayout(props: Props) {
                                 <MenuIcon />
                             </IconButton>
                             <Typography variant="h6" noWrap component="div">
-                                {"Project Manager"}
+                                {"Task Management"}
                             </Typography>
                             <IconButton
                                 color="inherit"
