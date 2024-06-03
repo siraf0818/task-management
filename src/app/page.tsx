@@ -170,12 +170,11 @@ const Login: NextPage = () => {
                       >
                         <OutlinedInput
                           id="email"
-                          // type="email"
+                          type="email"
                           autoComplete="email"
-                          autoFocus={isLaptopScreen}
                           placeholder="email@gmail.com"
                           size="medium"
-                          sx={{ borderRadius: 2 }}
+                          sx={{ borderRadius: 2, borderColor: 'primary.main', borderWidth: 1 }}
                           {...field}
                         />
                         {errors.email && (

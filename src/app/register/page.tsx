@@ -56,8 +56,6 @@ const Register: NextPage = () => {
   const isLaptopScreen = useMediaQuery(theme.breakpoints.up("md"));
   const isDesktopScreen = useMediaQuery(theme.breakpoints.up("xl"));
   const { register, isLoading } = useAuth();
-  const [saveEmail, setSaveEmail] = React.useState(false);
-  const [initEmail, setInitEmail] = React.useState<string | null>();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showPasswordUlang, setShowPasswordUlang] = React.useState(false);
   const thisYear = new Date().getFullYear();
@@ -77,10 +75,12 @@ const Register: NextPage = () => {
 
   const initialValues = React.useMemo(
     () => ({
-      email: initEmail ?? "",
+      email: "",
+      username: "",
       password: "",
+      passwordUlang: "",
     }),
-    [initEmail],
+    [],
   );
 
   const {
@@ -94,39 +94,8 @@ const Register: NextPage = () => {
     defaultValues: initialValues,
   });
 
-  const watchEmail = watch("email");
-
-  const handleSaveEmail = (checked: boolean) => {
-    if (checked) {
-      setSaveEmail(true);
-    } else {
-      setSaveEmail(false);
-    }
-  };
-
-  React.useEffect(() => {
-    if (localStorage.getItem("email")) {
-      setSaveEmail(true);
-    } else {
-      setSaveEmail(false);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (localStorage.getItem("email")) {
-      reset({ email: localStorage.getItem("email") ?? "", password: "" });
-    } else {
-      setInitEmail("");
-    }
-  }, [reset]);
-
   const onSubmit = (data: IRegisterInputs) => {
     register(data);
-    if (saveEmail) {
-      localStorage.setItem("email", watchEmail);
-    } else {
-      localStorage.removeItem("email");
-    }
   };
 
   return (
@@ -190,8 +159,6 @@ const Register: NextPage = () => {
                         <OutlinedInput
                           id="email"
                           type="email"
-                          autoComplete="email"
-                          autoFocus={isLaptopScreen}
                           placeholder="email@gmail.com"
                           size="medium"
                           sx={{ borderRadius: 2 }}
@@ -228,15 +195,12 @@ const Register: NextPage = () => {
                       >
                         <OutlinedInput
                           id="username"
-                          // type="email"
-                          autoComplete="username"
-                          autoFocus={isLaptopScreen}
                           placeholder="bagus"
                           size="medium"
                           sx={{ borderRadius: 2 }}
                           {...field}
                         />
-                        {errors.email && (
+                        {errors.username && (
                           <FormHelperText>
                             {errors.username
                               ? errors.username
@@ -273,7 +237,6 @@ const Register: NextPage = () => {
                               : "password"
                           }
                           sx={{ borderRadius: 2 }}
-                          autoComplete="password"
                           placeholder="Min 8 character"
                           endAdornment={
                             <InputAdornment position="end">
@@ -336,7 +299,6 @@ const Register: NextPage = () => {
                               : "password"
                           }
                           sx={{ borderRadius: 2 }}
-                          autoComplete="passwordUlang"
                           placeholder="Min 8 character"
                           endAdornment={
                             <InputAdornment position="end">

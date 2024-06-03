@@ -109,3 +109,18 @@ export type GetRecentBoardsResponse = {
   workspace_id: number;
   workspace_name: string;
 }[];
+
+export type GetWorkspaceBoardsResponse = {
+  board_id: number;
+  board_title: string;
+  owner_id: number;
+  owner_username: string;
+  background: number;
+  background_name: string;
+  visibility_id: number;
+  visibility_name: string;
+  workspace_id: number;
+  workspace_name: string;
+  board_created_at: string;
+  board_updated_at: string;
+}[];
