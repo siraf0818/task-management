@@ -24,7 +24,7 @@ import { useModal } from "@/context/modalContext";
 import CardBoard from "@/app/components/CardBoard/CardBoard";
 import CardCreateBoard from "@/app/components/CardCreateBoard/CardCreateBoard";
 
-const Home: NextPage = () => {
+const Board: NextPage = () => {
   const theme = useTheme();
   const isTabletScreen = useMediaQuery(theme.breakpoints.down("md"));
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
@@ -111,33 +111,14 @@ const Home: NextPage = () => {
           alignItems="center"
           padding={2}
         >
-          {dataStarred &&
-            <Grid item xs={12} mb={4}>
-              <Stack flexDirection={'row'} alignItems={'center'} gap={0.5} marginBottom={0.5} >
-                <FavoriteBorderIcon sx={{ height: 24, width: 24 }}
-                />
-                <Typography fontSize={20} fontWeight="bold">
-                  Favorite boards
-                </Typography>
-              </Stack>
-              <Box
-                display="grid"
-                gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-                gap={1}
-              >
-                {dataStarred && dataStarred.map((dat, idx) => {
-                  return <CardBoard key={String(idx)} id={dat.board_id} namaCard={dat.board_title} refetch={refetch} isFavorite={true} />
-                })}
-              </Box>
-            </Grid>
-          }
+
           {dataBoards &&
             <Grid item xs={12} mb={4}>
               <Stack flexDirection={'row'} alignItems={'center'} gap={0.5} marginBottom={0.5} >
                 <AccessTimeIcon sx={{ height: 24, width: 24 }}
                 />
                 <Typography fontSize={20} fontWeight="bold">
-                  Recently viewed
+                  Your boards
                 </Typography>
               </Stack>
               <Box
@@ -151,70 +132,11 @@ const Home: NextPage = () => {
               </Box>
             </Grid>
           }
-          <Grid item xs={12}>
-            <Typography fontSize={20} fontWeight="bold">
-              YOUR WORKSPACES
-            </Typography>
-            <Stack gap={4}>
-              {dataWorkspace && dataWorkspace.map((dat, idx) => {
-                return (
-                  <Stack key={String(idx)}>
-                    <Stack flexDirection={isPhoneScreen ? 'column' : 'row'} justifyContent={'space-between'} gap={1} paddingY={1} alignItems={isPhoneScreen ? 'flex-start' : 'center'}>
-                      <Stack flexDirection={'row'} gap={1} alignItems={"center"}>
-                        <Avatar
-                          sx={{
-                            backgroundColor: "#7C8883",
-                            width: 36,
-                            height: 36,
-                            color: "white"
-                          }}
-                          alt={dat.workspace_name}
-                          variant="rounded"
-                        >{avatarAlt(dat.workspace_name)}
-                        </Avatar>
-                        <Typography
-                          fontWeight={"600"}
-                        >
-                          {dat.workspace_name}
-                        </Typography>
-                      </Stack>
-                      <Stack flexDirection={'row'} justifyContent={'flex-end'} gap={1} height={35}>
-                        <Button sx={{ fontSize: 12 }} variant="contained" startIcon={
-                          <DashboardIcon sx={{ height: 16, width: 16 }}
-                          />}>
-                          Boards
-                        </Button>
-                        <Button sx={{ fontSize: 12 }} variant="contained" startIcon={
-                          <PeopleIcon sx={{ height: 16, width: 16 }}
-                          />}>
-                          Members ({dat.member_count})
-                        </Button>
-                        <Button sx={{ fontSize: 12 }} variant="contained" startIcon={
-                          <SettingsIcon sx={{ height: 16, width: 16 }}
-                          />}>
-                          Settings
-                        </Button>
-                      </Stack>
-                    </Stack>
-                    <Box
-                      display="grid"
-                      gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-                      gap={1}
-                    >
-                      {dat.recent_boards.map((dats, idx) => {
-                        return <CardBoard key={String(idx)} id={dats.id} namaCard={dats.board_title} refetch={refetch} isFavorite={Boolean(dats.is_starred)} />
-                      })}
-                      <CardCreateBoard namaCard={"Create new board"} create={() => setIsOpenModalBoard(true)} />
-                    </Box>
-                  </Stack>
-                )
-              })}
-            </Stack>
-          </Grid>
+
         </Grid>
       </Stack>
     </PrivateRoute>
   );
 };
 
-export default Home;
+export default Board;

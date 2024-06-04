@@ -43,6 +43,15 @@ export interface LoginResponse {
   // };
 }
 
+export interface StarredResponse {
+  message: string;
+  // code: number;
+  // message: string;
+  // data: {
+  //   token: string;
+  // };
+}
+
 export interface RegistrasiResponse {
   message: string;
 }
@@ -101,6 +110,18 @@ export type GetWorkspaceResponse = {
   role_name: string;
   membership_created_at: string;
   membership_updated_at: string;
+  member_count: number;
+  recent_boards: {
+    id: number;
+    owner_id: number;
+    board_title: string;
+    background: number;
+    visibility_id: number;
+    workspace_id: number;
+    created_at: string;
+    updated_at: string;
+    is_starred: number;
+  }[];
 }[];
 
 export type GetRecentBoardsResponse = {

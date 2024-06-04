@@ -231,18 +231,20 @@ export default function PageLayout(props: Props) {
                                         disablePadding
                                     >
                                         <ListItemButton
+                                            onClick={() => handleExpand(dat.workspace_id)}
                                             component={Link}
-                                            href="/workspace/boards"
+                                            href="/home/boards"
                                             selected={
-                                                pathName === "/workspace/boards"
+                                                pathName === "/home/boards" && expanded === dat.workspace_id
                                             }
                                             sx={{
                                                 borderRadius: 2,
                                                 paddingY: 1,
                                                 gap: 1,
+
                                                 "&.Mui-selected": {
-                                                    backgroundColor:
-                                                        "secondary.main",
+                                                    backgroundColor: "white",
+                                                    color: "secondary.main",
                                                 },
                                             }}
                                         >
@@ -251,7 +253,7 @@ export default function PageLayout(props: Props) {
                                                     width: 24,
                                                     height: 24,
                                                     color:
-                                                        pathName === "/workspace/boards"
+                                                        pathName === "/home/boards" && expanded === dat.workspace_id
                                                             ? "secondary.main"
                                                             : "#7C8883",
                                                 }}
@@ -264,7 +266,7 @@ export default function PageLayout(props: Props) {
                                                             fontWeight: 500,
                                                             color:
                                                                 pathName ===
-                                                                    "/workspace/boards"
+                                                                    "/home/boards" && expanded === dat.workspace_id
                                                                     ? "secondary.main"
                                                                     : "#7C8883",
                                                         }}
@@ -275,27 +277,29 @@ export default function PageLayout(props: Props) {
                                             />
                                         </ListItemButton>
                                         <ListItemButton
+                                            onClick={() => handleExpand(dat.workspace_id)}
                                             component={Link}
-                                            href="/workspace/members"
+                                            href="/home/members"
                                             selected={
-                                                pathName === "/workspace/members"
+                                                pathName === "/home/members" && expanded === dat.workspace_id
                                             }
                                             sx={{
                                                 borderRadius: 2,
                                                 paddingY: 1,
                                                 gap: 1,
+
                                                 "&.Mui-selected": {
-                                                    backgroundColor:
-                                                        "secondary.main",
+                                                    backgroundColor: "white",
+                                                    color: "secondary.main",
                                                 },
                                             }}
                                         >
-                                            <PeopleOutlineIcon
+                                            <PeopleIcon
                                                 sx={{
                                                     width: 24,
                                                     height: 24,
                                                     color:
-                                                        pathName === "/workspace/members"
+                                                        pathName === "/home/members" && expanded === dat.workspace_id
                                                             ? "secondary.main"
                                                             : "#7C8883",
                                                 }}
@@ -308,7 +312,7 @@ export default function PageLayout(props: Props) {
                                                             fontWeight: 500,
                                                             color:
                                                                 pathName ===
-                                                                    "/workspace/members"
+                                                                    "/home/members" && expanded === dat.workspace_id
                                                                     ? "secondary.main"
                                                                     : "#7C8883",
                                                         }}
@@ -321,24 +325,26 @@ export default function PageLayout(props: Props) {
                                                 event.preventDefault();
                                                 setIsOpenModalUser(true);
                                             }}>
-                                                <Icon path={mdiPlus} size={1} color={pathName === "/workspace/members"
+                                                <Icon path={mdiPlus} size={1} color={pathName === "/home/members" && expanded === dat.workspace_id
                                                     ? "secondary.main"
                                                     : "#7C8883"} />
                                             </IconButton>
                                         </ListItemButton>
                                         <ListItemButton
+                                            onClick={() => handleExpand(dat.workspace_id)}
                                             component={Link}
-                                            href="/workspace/settings"
+                                            href="/home/settings"
                                             selected={
-                                                pathName === "/workspace/settings"
+                                                pathName === "/home/settings" && expanded === dat.workspace_id
                                             }
                                             sx={{
                                                 borderRadius: 2,
                                                 paddingY: 1,
                                                 gap: 1,
+
                                                 "&.Mui-selected": {
-                                                    backgroundColor:
-                                                        "secondary.main",
+                                                    backgroundColor: "white",
+                                                    color: "secondary.main",
                                                 },
                                             }}
                                         >
@@ -347,7 +353,7 @@ export default function PageLayout(props: Props) {
                                                     width: 24,
                                                     height: 24,
                                                     color:
-                                                        pathName === "/workspace/settings"
+                                                        pathName === "/home/settings" && expanded === dat.workspace_id
                                                             ? "secondary.main"
                                                             : "#7C8883",
                                                 }}
@@ -360,7 +366,7 @@ export default function PageLayout(props: Props) {
                                                             fontWeight: 500,
                                                             color:
                                                                 pathName ===
-                                                                    "/workspace/settings"
+                                                                    "/home/settings" && expanded === dat.workspace_id
                                                                     ? "secondary.main"
                                                                     : "#7C8883",
                                                         }}
@@ -400,7 +406,7 @@ export default function PageLayout(props: Props) {
             >
                 <Toolbar>
                     <Stack justifyContent={'space-between'} flexDirection={'row'} alignItems={'center'} flex={1}>
-                        <Stack flexDirection={'row'} alignItems={'center'} >
+                        <Stack flexDirection={'row'} alignItems={'center'} flex={1} >
                             <IconButton
                                 color="inherit"
                                 aria-label="open drawer"
