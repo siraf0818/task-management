@@ -45,7 +45,7 @@ const Home: NextPage = () => {
               gap={1}
             >
               {dataBoards && dataBoards.map((dat, idx) => {
-                return <CardBoard key={String(idx)} namaCard={dat.board_title} isFavorite={false} />
+                return <CardBoard key={String(idx)} namaCard={dat.board_title} isFavorite={Boolean(dat.is_starred)} />
               })}
             </Box>
           </Grid>

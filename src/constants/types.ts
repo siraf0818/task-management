@@ -108,6 +108,7 @@ export type GetRecentBoardsResponse = {
   board_title: string;
   workspace_id: number;
   workspace_name: string;
+  is_starred: number;
 }[];
 
 export type GetWorkspaceBoardsResponse = {

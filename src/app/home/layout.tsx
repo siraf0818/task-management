@@ -90,9 +90,9 @@ export default function PageLayout(props: Props) {
         setAnchorElC(null);
     };
 
-    const [expanded, setExpanded] = React.useState<string>();
+    const [expanded, setExpanded] = React.useState<number>();
 
-    const handleExpand = (param: string) => {
+    const handleExpand = (param: number) => {
         if (param === expanded) {
             setExpanded(undefined);
         } else {
@@ -166,7 +166,7 @@ export default function PageLayout(props: Props) {
                         return (
                             <React.Fragment key={String(idx)}>
                                 <ListItemButton
-                                    onClick={() => handleExpand(dat.workspace_name)}
+                                    onClick={() => handleExpand(dat.workspace_id)}
                                     sx={{
                                         paddingY: 2,
                                         paddingX: 1.5,
@@ -200,7 +200,7 @@ export default function PageLayout(props: Props) {
                                             </Typography>
                                         }
                                     />
-                                    {expanded === dat.workspace_name ? (
+                                    {expanded === dat.workspace_id ? (
                                         <ExpandLess
                                             sx={{
                                                 width: 24,
@@ -219,7 +219,7 @@ export default function PageLayout(props: Props) {
                                     )}
                                 </ListItemButton>
                                 <Collapse
-                                    in={expanded === dat.workspace_name}
+                                    in={expanded === dat.workspace_id}
                                     timeout="auto"
                                     unmountOnExit
                                 >

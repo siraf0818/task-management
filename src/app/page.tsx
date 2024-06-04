@@ -123,6 +123,7 @@ const Login: NextPage = () => {
         <Box
           display={isTabletScreen ? "flex" : "grid"}
           gridTemplateColumns={isTabletScreen ? undefined : "1fr 1fr"}
+          // bgcolor={"black"}
           flexDirection="column"
           justifyContent="center"
           alignItems="center"

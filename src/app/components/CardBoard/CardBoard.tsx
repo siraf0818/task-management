@@ -25,7 +25,7 @@ const CardBoard = ({
                 <CardHeader
                     color="white"
                     title={namaCard}
-                    titleTypographyProps={{ fontWeight: "600", fontSize: 16 }}
+                    titleTypographyProps={{ fontWeight: "600", fontSize: 16, color: 'white' }}
                 />
                 <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
                     <Stack sx={{ padding: 1 }}>
