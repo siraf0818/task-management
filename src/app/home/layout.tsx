@@ -52,7 +52,7 @@ interface Props {
 
 export default function PageLayout(props: Props) {
     const [isOpenModalLogout, setIsOpenModalLogout] = React.useState(false);
-    const { logout, isLoading } = useAuth();
+    const { logout, isLoading, workspaceId, setWorkspaceId } = useAuth();
     const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace } = useModal();
     const { data: dataWorkspace } = useWorkspace();
     const { data: dataUser } = useUserData();
@@ -90,15 +90,24 @@ export default function PageLayout(props: Props) {
         setAnchorElC(null);
     };
 
-    const [expanded, setExpanded] = React.useState<number>();
+    const [expandedMenu, setExpandedMenu] = React.useState<number>(0);
 
     const handleExpand = (param: number) => {
-        if (param === expanded) {
-            setExpanded(undefined);
+        if (param === workspaceId) {
+            setWorkspaceId(0);
         } else {
-            setExpanded(param);
+            setWorkspaceId(param);
         }
     };
+
+    const handleExpandMenu = (param: number) => {
+        if (param === expandedMenu) {
+            setExpandedMenu(0);
+        } else {
+            setExpandedMenu(param);
+        }
+    };
+
 
     const drawerWidth = 272;
 
@@ -166,7 +175,7 @@ export default function PageLayout(props: Props) {
                         return (
                             <React.Fragment key={String(idx)}>
                                 <ListItemButton
-                                    onClick={() => handleExpand(dat.workspace_id)}
+                                    onClick={() => handleExpandMenu(dat.workspace_id)}
                                     sx={{
                                         paddingY: 2,
                                         paddingX: 1.5,
@@ -200,7 +209,7 @@ export default function PageLayout(props: Props) {
                                             </Typography>
                                         }
                                     />
-                                    {expanded === dat.workspace_id ? (
+                                    {expandedMenu === dat.workspace_id ? (
                                         <ExpandLess
                                             sx={{
                                                 width: 24,
@@ -219,7 +228,7 @@ export default function PageLayout(props: Props) {
                                     )}
                                 </ListItemButton>
                                 <Collapse
-                                    in={expanded === dat.workspace_id}
+                                    in={expandedMenu === dat.workspace_id}
                                     timeout="auto"
                                     unmountOnExit
                                 >
@@ -235,7 +244,7 @@ export default function PageLayout(props: Props) {
                                             component={Link}
                                             href="/home/boards"
                                             selected={
-                                                pathName === "/home/boards" && expanded === dat.workspace_id
+                                                pathName === "/home/boards" && workspaceId === dat.workspace_id
                                             }
                                             sx={{
                                                 borderRadius: 2,
@@ -253,7 +262,7 @@ export default function PageLayout(props: Props) {
                                                     width: 24,
                                                     height: 24,
                                                     color:
-                                                        pathName === "/home/boards" && expanded === dat.workspace_id
+                                                        pathName === "/home/boards" && workspaceId === dat.workspace_id
                                                             ? "secondary.main"
                                                             : "#7C8883",
                                                 }}
@@ -266,7 +275,7 @@ export default function PageLayout(props: Props) {
                                                             fontWeight: 500,
                                                             color:
                                                                 pathName ===
-                                                                    "/home/boards" && expanded === dat.workspace_id
+                                                                    "/home/boards" && workspaceId === dat.workspace_id
                                                                     ? "secondary.main"
                                                                     : "#7C8883",
                                                         }}
@@ -281,7 +290,7 @@ export default function PageLayout(props: Props) {
                                             component={Link}
                                             href="/home/members"
                                             selected={
-                                                pathName === "/home/members" && expanded === dat.workspace_id
+                                                pathName === "/home/members" && workspaceId === dat.workspace_id
                                             }
                                             sx={{
                                                 borderRadius: 2,
@@ -299,7 +308,7 @@ export default function PageLayout(props: Props) {
                                                     width: 24,
                                                     height: 24,
                                                     color:
-                                                        pathName === "/home/members" && expanded === dat.workspace_id
+                                                        pathName === "/home/members" && workspaceId === dat.workspace_id
                                                             ? "secondary.main"
                                                             : "#7C8883",
                                                 }}
@@ -312,7 +321,7 @@ export default function PageLayout(props: Props) {
                                                             fontWeight: 500,
                                                             color:
                                                                 pathName ===
-                                                                    "/home/members" && expanded === dat.workspace_id
+                                                                    "/home/members" && workspaceId === dat.workspace_id
                                                                     ? "secondary.main"
                                                                     : "#7C8883",
                                                         }}
@@ -325,7 +334,7 @@ export default function PageLayout(props: Props) {
                                                 event.preventDefault();
                                                 setIsOpenModalUser(true);
                                             }}>
-                                                <Icon path={mdiPlus} size={1} color={pathName === "/home/members" && expanded === dat.workspace_id
+                                                <Icon path={mdiPlus} size={1} color={pathName === "/home/members" && workspaceId === dat.workspace_id
                                                     ? "secondary.main"
                                                     : "#7C8883"} />
                                             </IconButton>
@@ -335,7 +344,7 @@ export default function PageLayout(props: Props) {
                                             component={Link}
                                             href="/home/settings"
                                             selected={
-                                                pathName === "/home/settings" && expanded === dat.workspace_id
+                                                pathName === "/home/settings" && workspaceId === dat.workspace_id
                                             }
                                             sx={{
                                                 borderRadius: 2,
@@ -353,7 +362,7 @@ export default function PageLayout(props: Props) {
                                                     width: 24,
                                                     height: 24,
                                                     color:
-                                                        pathName === "/home/settings" && expanded === dat.workspace_id
+                                                        pathName === "/home/settings" && workspaceId === dat.workspace_id
                                                             ? "secondary.main"
                                                             : "#7C8883",
                                                 }}
@@ -366,7 +375,7 @@ export default function PageLayout(props: Props) {
                                                             fontWeight: 500,
                                                             color:
                                                                 pathName ===
-                                                                    "/home/settings" && expanded === dat.workspace_id
+                                                                    "/home/settings" && workspaceId === dat.workspace_id
                                                                     ? "secondary.main"
                                                                     : "#7C8883",
                                                         }}

@@ -14,6 +14,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isRegistered: boolean;
+  workspaceId: number;
   checkToken: (token: string) => void;
   login: (values: LoginBody) => void;
   logout: () => void;
@@ -21,6 +22,7 @@ export interface AuthState {
   handleRegistered: () => void;
   handleAuthenticated: (value: boolean) => void;
   setRegistered: React.Dispatch<React.SetStateAction<boolean>>;
+  setWorkspaceId: React.Dispatch<React.SetStateAction<number>>;
   handleSetToken: (token: any) => Promise<void>;
 }
 

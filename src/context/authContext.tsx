@@ -37,6 +37,7 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     const [isRegistered, setRegistered] = useState<boolean>(false);
     const [isPreparingApp, setPreparingApp] = useState<boolean>(true);
     const [isLoading, setLoading] = useState<boolean>(false);
+    const [workspaceId, setWorkspaceId] = useState<number>(0);
     const Router = useRouter();
     const cookies = useMemo(() => new Cookies(), []);
     const queryClient = useQueryClient();
@@ -265,17 +266,10 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
             setRegistered,
             handleAuthenticated,
             handleSetToken,
+            workspaceId,
+            setWorkspaceId,
         }),
-        [
-            isAuthenticated,
-            isLoading,
-            isRegistered,
-            checkToken,
-            login,
-            logout,
-            register,
-            handleSetToken,
-        ],
+        [isAuthenticated, isLoading, isRegistered, checkToken, login, logout, register, handleSetToken, workspaceId],
     );
 
     if (isPreparingApp) return null;
