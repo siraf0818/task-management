@@ -23,12 +23,14 @@ import Swal from "sweetalert2";
 import { useModal } from "@/context/modalContext";
 import CardBoard from "@/app/components/CardBoard/CardBoard";
 import CardCreateBoard from "@/app/components/CardCreateBoard/CardCreateBoard";
+import { useAuth } from "@/context/authContext";
+import Link from "next/link";
 
 const Home: NextPage = () => {
   const theme = useTheme();
-  const isTabletScreen = useMediaQuery(theme.breakpoints.down("md"));
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
   const { setIsOpenModalBoard } = useModal();
+  const { setWorkspaceId } = useAuth();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspace();
   const { data: dataBoards, refetch: refetchBoards } = useRecentBoards();
   const { data: dataStarred, refetch: refetchStarred } = useStarredBoards();
@@ -104,6 +106,10 @@ const Home: NextPage = () => {
     [handleErrorResponse, refetchBoards, refetchStarred, refetchWorkspace],
   );
 
+  const handleExpand = (param: number) => {
+    setWorkspaceId(param);
+  };
+
   return (
     <PrivateRoute>
       <Stack spacing={4.5}>
@@ -178,23 +184,37 @@ const Home: NextPage = () => {
                           {dat.workspace_name}
                         </Typography>
                       </Stack>
-                      <Stack flexDirection={'row'} justifyContent={'flex-end'} gap={1} height={35}>
-                        <Button sx={{ fontSize: 12 }} variant="contained" startIcon={
-                          <DashboardIcon sx={{ height: 16, width: 16 }}
-                          />}>
+                      <Stack flexDirection={'row'} width={isPhoneScreen ? '100%' : undefined} justifyContent={isPhoneScreen ? 'space-between' : 'flex-end'} gap={isPhoneScreen ? 0.8 : 1} height={35}>
+                        <Button
+                          fullWidth={isPhoneScreen}
+                          component={Link}
+                          onClick={() => handleExpand(dat.workspace_id)} href="/home/boards" sx={{ fontSize: 12 }} variant="contained" startIcon={
+                            <DashboardIcon sx={{ height: 16, width: 16 }}
+                            />}>
                           Boards
                         </Button>
-                        <Button sx={{ fontSize: 12 }} variant="contained" startIcon={
-                          <PeopleIcon sx={{ height: 16, width: 16 }}
-                          />}>
+                        <Button
+                          fullWidth={isPhoneScreen}
+                          sx={{ fontSize: 12 }} variant="contained" startIcon={
+                            <PeopleIcon sx={{ height: 16, width: 16 }}
+                            />}>
                           Members ({dat.member_count})
                         </Button>
-                        <Button sx={{ fontSize: 12 }} variant="contained" startIcon={
-                          <SettingsIcon sx={{ height: 16, width: 16 }}
-                          />}>
-                          Settings
-                        </Button>
+                        {!isPhoneScreen &&
+                          <Button sx={{ fontSize: 12 }} variant="contained" startIcon={
+                            <SettingsIcon sx={{ height: 16, width: 16 }}
+                            />}>
+                            Settings
+                          </Button>}
                       </Stack>
+                      {isPhoneScreen &&
+                        <Stack flexDirection={'row'} justifyContent={'flex-end'} width={'100%'} height={35}>
+                          <Button fullWidth sx={{ fontSize: 12 }} variant="contained" startIcon={
+                            <SettingsIcon sx={{ height: 16, width: 16 }}
+                            />}>
+                            Settings
+                          </Button>
+                        </Stack>}
                     </Stack>
                     <Box
                       display="grid"

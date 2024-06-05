@@ -1,7 +1,6 @@
 'use client';
 import * as React from "react";
-import Image from "next/image";
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import Stack from "@mui/material/Stack";
@@ -9,32 +8,20 @@ import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
-import Divider from "@mui/material/Divider";
 import Toolbar from "@mui/material/Toolbar";
 import Collapse from "@mui/material/Collapse";
 import Container from "@mui/material/Container";
 import MenuIcon from "@mui/icons-material/Menu";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import HistoryIcon from "@mui/icons-material/History";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import AllInboxIcon from "@mui/icons-material/AllInbox";
-import PaymentsIcon from "@mui/icons-material/Payments";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import DashboardIcon from "@mui/icons-material/dashboard";
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import {
-    mdiPackageVariant,
-} from "@mdi/js";
 import Link from "next/link";
 import { Dialog, DialogActions, DialogContent, DialogTitle, ListItemButton, Menu, MenuItem } from "@mui/material";
 import avatarAlt from "@/utils/avatarAlt";
@@ -52,7 +39,7 @@ interface Props {
 
 export default function PageLayout(props: Props) {
     const [isOpenModalLogout, setIsOpenModalLogout] = React.useState(false);
-    const { logout, isLoading, workspaceId, setWorkspaceId } = useAuth();
+    const { logout, workspaceId, setWorkspaceId } = useAuth();
     const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace } = useModal();
     const { data: dataWorkspace } = useWorkspace();
     const { data: dataUser } = useUserData();
@@ -90,15 +77,12 @@ export default function PageLayout(props: Props) {
         setAnchorElC(null);
     };
 
-    const [expandedMenu, setExpandedMenu] = React.useState<number>(0);
+    const [expandedMenu, setExpandedMenu] = React.useState<number>(workspaceId);
 
     const handleExpand = (param: number) => {
-        if (param === workspaceId) {
-            setWorkspaceId(0);
-        } else {
-            setWorkspaceId(param);
-        }
+        setWorkspaceId(param);
     };
+
 
     const handleExpandMenu = (param: number) => {
         if (param === expandedMenu) {
@@ -108,6 +92,11 @@ export default function PageLayout(props: Props) {
         }
     };
 
+    React.useEffect(() => {
+        if (workspaceId) {
+            setExpandedMenu(workspaceId);
+        }
+    }, [workspaceId]);
 
     const drawerWidth = 272;
 

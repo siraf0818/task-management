@@ -7,31 +7,25 @@ import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import PrivateRoute from "@/routes/PrivateRoute";
-import { Avatar, Button, Grid } from "@mui/material";
+import { Avatar, Grid } from "@mui/material";
 import avatarAlt from "@/utils/avatarAlt";
-import DashboardIcon from "@mui/icons-material/dashboard";
-import PeopleIcon from '@mui/icons-material/People';
-import SettingsIcon from '@mui/icons-material/Settings';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import useWorkspace from "@/services/queries/useWorkspace";
-import useRecentBoards from "@/services/queries/useRecentBoards";
-import useStarredBoards from "@/services/queries/useStarredBoards";
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { useCallback } from "react";
 import defaultAxios, { AxiosError } from "axios";
 import Swal from "sweetalert2";
 import { useModal } from "@/context/modalContext";
 import CardBoard from "@/app/components/CardBoard/CardBoard";
 import CardCreateBoard from "@/app/components/CardCreateBoard/CardCreateBoard";
+import useWorkspaceBoards from "@/services/queries/useWorkspaceBoards";
+import { useAuth } from "@/context/authContext";
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import useWorkspaceDetail from "@/services/queries/useWorkspaceDetail";
 
 const Board: NextPage = () => {
   const theme = useTheme();
-  const isTabletScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
+  const { workspaceId } = useAuth();
   const { setIsOpenModalBoard } = useModal();
-  const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspace();
-  const { data: dataBoards, refetch: refetchBoards } = useRecentBoards();
-  const { data: dataStarred, refetch: refetchStarred } = useStarredBoards();
+  const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspaceDetail(workspaceId);
+  const { data: dataBoards, refetch: refetchBoards } = useWorkspaceBoards(workspaceId);
 
   const handleErrorResponse = useCallback((error: any) => {
     if (defaultAxios.isAxiosError(error)) {
@@ -95,13 +89,12 @@ const Board: NextPage = () => {
       try {
         refetchWorkspace();
         refetchBoards();
-        refetchStarred();
       } catch (error) {
         console.log(error)
         handleErrorResponse(error);
       }
     },
-    [handleErrorResponse, refetchBoards, refetchStarred, refetchWorkspace],
+    [handleErrorResponse, refetchBoards, refetchWorkspace],
   );
 
   return (
@@ -111,11 +104,42 @@ const Board: NextPage = () => {
           alignItems="center"
           padding={2}
         >
-
+          {dataWorkspace &&
+            <Grid item xs={12} mb={4} borderBottom={0.5} py={2} borderColor={'secondary.main'}>
+              <Stack flexDirection={'row'} gap={1} alignItems={"flex-start"}>
+                <Avatar
+                  sx={{
+                    backgroundColor: "#7C8883",
+                    width: 56,
+                    height: 56,
+                    color: "white"
+                  }}
+                  sizes="large"
+                  alt={dataWorkspace.workspace_name}
+                  variant="rounded"
+                >
+                  <Typography fontSize={36}>
+                    {avatarAlt(dataWorkspace.workspace_name)}
+                  </Typography>
+                </Avatar>
+                <Stack>
+                  <Typography
+                    fontWeight={"600"}
+                  >
+                    {dataWorkspace.workspace_name}
+                  </Typography>
+                  <Typography
+                  >
+                    {dataWorkspace.description}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Grid>
+          }
           {dataBoards &&
             <Grid item xs={12} mb={4}>
               <Stack flexDirection={'row'} alignItems={'center'} gap={0.5} marginBottom={0.5} >
-                <AccessTimeIcon sx={{ height: 24, width: 24 }}
+                <PersonOutlineIcon sx={{ height: 24, width: 24 }}
                 />
                 <Typography fontSize={20} fontWeight="bold">
                   Your boards
@@ -129,6 +153,7 @@ const Board: NextPage = () => {
                 {dataBoards && dataBoards.map((dat, idx) => {
                   return <CardBoard key={String(idx)} id={dat.board_id} namaCard={dat.board_title} refetch={refetch} isFavorite={Boolean(dat.is_starred)} />
                 })}
+                <CardCreateBoard namaCard={"Create new board"} create={() => setIsOpenModalBoard(true)} />
               </Box>
             </Grid>
           }

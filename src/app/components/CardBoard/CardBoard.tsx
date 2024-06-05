@@ -132,7 +132,7 @@ const CardBoard = ({
                     titleTypographyProps={{ fontWeight: "600", fontSize: 16, color: 'white' }}
                 />
                 <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
-                    <Stack sx={{ padding: 1 }}>
+                    <Stack>
                         {isFavorite ?
                             <IconButton
                                 onClick={(event) => {

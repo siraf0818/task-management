@@ -126,6 +126,18 @@ export type GetWorkspaceResponse = {
   }[];
 }[];
 
+export type GetWorkspaceDetailResponse = {
+  id: number;
+  workspace_name: string;
+  type_id: number;
+  type_name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  member_count: number;
+  user_role_on_workspace: "owner";
+};
+
 export type GetRecentBoardsResponse = {
   board_id: number;
   board_title: string;
@@ -147,4 +159,5 @@ export type GetWorkspaceBoardsResponse = {
   workspace_name: string;
   board_created_at: string;
   board_updated_at: string;
+  is_starred: number;
 }[];
