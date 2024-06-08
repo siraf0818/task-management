@@ -59,11 +59,6 @@ const Register: NextPage = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showPasswordUlang, setShowPasswordUlang] = React.useState(false);
   const thisYear = new Date().getFullYear();
-  const [isOpenModalLupaPassword, setIsOpenModalLupaPassword] =
-    React.useState(false);
-
-  const openModalLupaPassword = () => setIsOpenModalLupaPassword(true);
-  const closeModalLupaPassword = () => setIsOpenModalLupaPassword(false);
 
   const handleClickShowPassword = () => {
     setShowPassword((prev) => !prev);
@@ -86,8 +81,6 @@ const Register: NextPage = () => {
   const {
     handleSubmit,
     control,
-    watch,
-    reset,
     formState: { errors },
   } = useForm<IRegisterInputs>({
     resolver: yupResolver(schema),
@@ -195,7 +188,8 @@ const Register: NextPage = () => {
                       >
                         <OutlinedInput
                           id="username"
-                          placeholder="bagus"
+                          autoComplete=""
+                          placeholder="johndoe"
                           size="medium"
                           sx={{ borderRadius: 2 }}
                           {...field}

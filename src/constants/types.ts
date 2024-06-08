@@ -161,3 +161,30 @@ export type GetWorkspaceBoardsResponse = {
   board_updated_at: string;
   is_starred: number;
 }[];
+
+export type GetWorkspaceMembersResponse = {
+  membership_id: number;
+  user_id: number;
+  user_username: string;
+  user_email: string;
+  role_id: number;
+  role_name: string;
+  membership_created_at: string;
+  membership_updated_at: string;
+}[];
+
+export type GetWorkspaceTypesResponse = {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}[];
+
+export type GetAllUsersResponse = {
+  id: number;
+  email: string;
+  username: string;
+  bio: string;
+  created_at: string;
+  updated_at: string;
+}[];

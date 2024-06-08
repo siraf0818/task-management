@@ -16,6 +16,8 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, ListItemButton, Menu
 import Button from "@mui/material/Button";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import useWorkspaceTypes from "@/services/queries/useWorkspaceTypes";
+import useAllUsers from "@/services/queries/useAllUsers";
 
 interface State {
     isOpenModalUser: boolean;
@@ -39,6 +41,8 @@ const ModalProvider = ({ children }: IModalContext) => {
     const [isOpenModalUser, setIsOpenModalUser] = useState(false);
     const [isOpenModalBoard, setIsOpenModalBoard] = useState(false);
     const [isOpenModalWorkspace, setIsOpenModalWorkspace] = useState(false);
+    const { data: dataWTypes } = useWorkspaceTypes();
+    const { data: dataAUssers } = useAllUsers();
 
     const closeModalUser = () => setIsOpenModalUser(false);
     const handleInvite = () => {
@@ -122,7 +126,8 @@ const ModalProvider = ({ children }: IModalContext) => {
                             size="medium"
                             disablePortal
                             id="combo-box-demo"
-                            options={["Bagus1", "Bagus2"]}
+                            options={dataAUssers ?? []}
+                            getOptionLabel={(option) => option.username}
                             renderInput={(params) => <TextField {...params} />}
                         />
                     </Stack>
@@ -353,7 +358,8 @@ const ModalProvider = ({ children }: IModalContext) => {
                                 size="medium"
                                 disablePortal
                                 id="combo-box-demo"
-                                options={["Education", "Sport"]}
+                                options={dataWTypes ?? []}
+                                getOptionLabel={(option) => option.name}
                                 renderInput={(params) => <TextField {...params} />}
                             />
                         </Stack>
