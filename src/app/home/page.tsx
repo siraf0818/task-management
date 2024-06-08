@@ -29,7 +29,7 @@ import Link from "next/link";
 const Home: NextPage = () => {
   const theme = useTheme();
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
-  const { setIsOpenModalBoard, isFetchingItems, cancelFetchingItems } = useModal();
+  const { setIsOpenModalBoard, isFetchingItems, cancelFetchingItems, setWorksId } = useModal();
   const { setWorkspaceId } = useAuth();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspace();
   const { data: dataBoards, refetch: refetchBoards } = useRecentBoards();
@@ -237,7 +237,7 @@ const Home: NextPage = () => {
                       {dat.recent_boards.map((dats, idx) => {
                         return <CardBoard key={String(idx)} id={dats.id} namaCard={dats.board_title} refetch={refetch} isFavorite={Boolean(dats.is_starred)} />
                       })}
-                      <CardCreateBoard namaCard={"Create new board"} create={() => setIsOpenModalBoard(true)} />
+                      <CardCreateBoard namaCard={"Create new board"} create={() => { setIsOpenModalBoard(true); setWorksId(dat.workspace_id) }} />
                     </Box>
                   </Stack>
                 )

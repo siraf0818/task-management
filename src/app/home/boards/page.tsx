@@ -23,7 +23,7 @@ import useWorkspaceDetail from "@/services/queries/useWorkspaceDetail";
 const Board: NextPage = () => {
   const theme = useTheme();
   const { workspaceId } = useAuth();
-  const { setIsOpenModalBoard } = useModal();
+  const { setIsOpenModalBoard, isFetchingItems, cancelFetchingItems, setWorksId } = useModal();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspaceDetail(workspaceId);
   const { data: dataBoards, refetch: refetchBoards } = useWorkspaceBoards(workspaceId);
 
@@ -97,6 +97,13 @@ const Board: NextPage = () => {
     [handleErrorResponse, refetchBoards, refetchWorkspace],
   );
 
+  React.useEffect(() => {
+    if (isFetchingItems) {
+      refetch();
+      cancelFetchingItems();
+    }
+  }, [cancelFetchingItems, isFetchingItems, refetch]);
+
   return (
     <PrivateRoute>
       <Stack spacing={4.5}>
@@ -153,7 +160,7 @@ const Board: NextPage = () => {
                 {dataBoards && dataBoards.map((dat, idx) => {
                   return <CardBoard key={String(idx)} id={dat.board_id} namaCard={dat.board_title} refetch={refetch} isFavorite={Boolean(dat.is_starred)} />
                 })}
-                <CardCreateBoard namaCard={"Create new board"} create={() => setIsOpenModalBoard(true)} />
+                <CardCreateBoard namaCard={"Create new board"} create={() => { setIsOpenModalBoard(true); setWorksId(workspaceId) }} />
               </Box>
             </Grid>
           }

@@ -102,7 +102,7 @@ export type GetUserDataResponse = {
   role_name: string;
 };
 
-export type GetWorkspaceResponse = {
+export type TWorkspace = {
   membership_id: number;
   workspace_id: number;
   role_id: number;
@@ -122,7 +122,9 @@ export type GetWorkspaceResponse = {
     workspace_id: number;
     is_starred: number;
   }[];
-}[];
+};
+
+export type GetWorkspaceResponse = TWorkspace[];
 
 export type GetWorkspaceDetailResponse = {
   id: number;
@@ -180,3 +182,10 @@ export type TUser = {
 };
 
 export type GetAllUsersResponse = TUser[];
+
+export type TBVisibility = {
+  id: number;
+  name: string;
+};
+
+export type GetBoardVisibilitiesResponse = TBVisibility[];

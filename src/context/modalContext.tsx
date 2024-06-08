@@ -26,8 +26,12 @@ import axios from "../services/axios";
 import { useQueryClient } from "react-query";
 import Swal from "sweetalert2";
 import defaultAxios, { AxiosError } from "axios";
-import { DefaultResponse, TUser, TWType } from "@/constants/types";
+import { DefaultResponse, TBVisibility, TUser, TWorkspace, TWType } from "@/constants/types";
 import LoadingButton from "@mui/lab/LoadingButton";
+import useBoardVisibilities from "@/services/queries/useBoardVisibilities";
+import useWorkspace from "@/services/queries/useWorkspace";
+import { useRouter } from "next/navigation";
+import { useAuth } from "./authContext";
 
 interface IInviteUser {
     invited_user_id: number;
@@ -38,6 +42,12 @@ interface ICreateWorkspace {
     name: string;
     type_id: TWType;
     description?: string;
+}
+
+interface ICreateBoard {
+    board_title: string;
+    workspace: TBVisibility;
+    visibility: TBVisibility;
 }
 
 const schemaInviteUser = yup
@@ -63,6 +73,22 @@ const schemaCreateWorkspace = yup
     })
     .required();
 
+const schemaCreateBoard = yup
+    .object({
+        board_title: yup
+            .string()
+            .required("Required"),
+        visibility: yup.object().shape({
+            id: yup.number().required("Required"),
+            name: yup.string().required("Required"),
+        }).required("Required"),
+        workspace: yup.object().shape({
+            id: yup.number().required("Required"),
+            name: yup.string().required("Required"),
+        }).required("Required"),
+    })
+    .required();
+
 interface State {
     isOpenModalUser: boolean;
     setIsOpenModalUser: (value: boolean) => void;
@@ -85,15 +111,31 @@ const ModalContext = createContext<State | undefined>(undefined);
 const ModalProvider = ({ children }: IModalContext) => {
     const theme = useTheme();
     const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
+    const Router = useRouter();
+    const { setWorkspaceId } = useAuth();
 
-    const [wokrsId, setWorksId] = useState<number>();
+    const [worksId, setWorksId] = useState<number>();
     const [isFetchingItems, setIsFetchingItems] = useState(false);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [isOpenModalUser, setIsOpenModalUser] = useState(false);
     const [isOpenModalBoard, setIsOpenModalBoard] = useState(false);
     const [isOpenModalWorkspace, setIsOpenModalWorkspace] = useState(false);
     const { data: dataWTypes } = useWorkspaceTypes();
+    const { data: dataBVisibilites } = useBoardVisibilities();
     const { data: dataAUssers } = useAllUsers();
+    const { data: dataWorkspace } = useWorkspace();
+
+    const workspaces = dataWorkspace?.map((li) => ({
+        id: li.workspace_id,
+        name: li.workspace_name,
+    }));
+
+    const selWorkspaces = React.useMemo(() => {
+        if (worksId) {
+            return workspaces?.find((li) => li.id === worksId);
+        }
+        return undefined;
+    }, [worksId, workspaces]);
 
     const setFetchingItems = useCallback(() => {
         setIsFetchingItems(true);
@@ -109,12 +151,17 @@ const ModalProvider = ({ children }: IModalContext) => {
         resetInviteUser();
     };
 
-    const closeModalBoard = () => setIsOpenModalBoard(false);
-    const handleCreateBoard = () => {
-        closeModalBoard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const closeModalBoard = () => {
+        setIsOpenModalBoard(false);
+        resetCreateBoard();
     };
 
-    const closeModalWorkspace = () => setIsOpenModalWorkspace(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const closeModalWorkspace = () => {
+        setIsOpenModalWorkspace(false);
+        resetCreateWorkspace();
+    };
 
     const handleErrorResponse = useCallback((error: any) => {
         if (defaultAxios.isAxiosError(error)) {
@@ -190,9 +237,9 @@ const ModalProvider = ({ children }: IModalContext) => {
     const initialValuesInviteUser = React.useMemo(
         () => ({
             invited_user_id: undefined,
-            workspace_id: wokrsId ?? undefined,
+            workspace_id: worksId ?? undefined,
         }),
-        [wokrsId],
+        [worksId],
     );
 
     const {
@@ -299,6 +346,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                             container: "my-swal",
                         },
                     });
+                    Router.push("/home");
                     resetCreateWorkspace();
                     setFetchingItems();
                     closeModalWorkspace();
@@ -317,11 +365,81 @@ const ModalProvider = ({ children }: IModalContext) => {
         createWorkspace(data);
     };
 
+    const initialValuesCreateBoard = React.useMemo(
+        () => ({
+            board_title: "",
+            visibility: { id: undefined, name: "" },
+            workspace: { id: undefined, name: "" },
+        }),
+        [],
+    );
+
+    const {
+        handleSubmit: handleSubmitCreateBoard,
+        setValue: setValueCreateBoard,
+        formState: { errors: errorsCreateBoard },
+        control: controlCreateBoard,
+        reset: resetCreateBoard,
+    } = useForm<ICreateBoard>({
+        resolver: yupResolver(schemaCreateBoard),
+        defaultValues: initialValuesCreateBoard,
+    });
+
+    const createBoard = useCallback(
+        async (values: ICreateBoard) => {
+            setLoading(true);
+            try {
+                const { data } = await axios.post<DefaultResponse>(
+                    `workspace/${values.workspace.id}/board`, {
+                    board_title: values.board_title,
+                    visibility: values.visibility.id,
+                }, {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }
+                );
+                if (!data.errno) {
+                    Swal.fire({
+                        title: "Board Created",
+                        position: "top-end",
+                        showConfirmButton: false,
+                        icon: "success",
+                        toast: true,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showCloseButton: true,
+                        customClass: {
+                            container: "my-swal",
+                        },
+                    });
+                    setWorkspaceId(values.workspace.id);
+                    Router.push("/home/boards");
+                    setWorksId(undefined);
+                    resetCreateBoard();
+                    setFetchingItems();
+                    closeModalBoard();
+                }
+                setLoading(false);
+            } catch (error) {
+                setLoading(false);
+                console.log(error)
+                handleErrorResponse(error);
+            }
+        },
+        [Router, closeModalBoard, handleErrorResponse, resetCreateBoard, setFetchingItems, setWorkspaceId],
+    );
+
+    const onSubmitCreateBoard = (data: ICreateBoard) => {
+        createBoard(data);
+    };
+
     useEffect(() => {
-        if (wokrsId) {
-            setValueInviteUser('workspace_id', wokrsId);
+        if (worksId) {
+            setValueInviteUser('workspace_id', worksId);
+            selWorkspaces && setValueCreateBoard('workspace', selWorkspaces);
         }
-    }, [setValueInviteUser, wokrsId]);
+    }, [selWorkspaces, setValueCreateBoard, setValueInviteUser, worksId]);
 
     const value = useMemo(() => ({
         isOpenModalUser,
@@ -493,9 +611,22 @@ const ModalProvider = ({ children }: IModalContext) => {
                             >
                                 Board title
                             </Typography>
-                            <OutlinedInput
-                                id="name"
-                                size="medium"
+                            <Controller
+                                control={controlCreateBoard}
+                                name="board_title"
+                                render={({ field }) => (
+                                    <TextField
+                                        {...field}
+                                        id="board_title"
+                                        size="medium"
+                                        error={Boolean(errorsCreateBoard.board_title)}
+                                        helperText={
+                                            errorsCreateBoard.board_title
+                                                ? errorsCreateBoard.board_title.message
+                                                : ""
+                                        }
+                                    />
+                                )}
                             />
                         </Stack>
                         <Stack flexDirection={"column"} gap={0.5}>
@@ -505,13 +636,32 @@ const ModalProvider = ({ children }: IModalContext) => {
                             >
                                 Workspace
                             </Typography>
-                            <Autocomplete
-                                fullWidth
-                                size="medium"
-                                disablePortal
-                                id="combo-box-demo"
-                                options={["Bagus Workspace", "Bagus Workspace2"]}
-                                renderInput={(params) => <TextField {...params} />}
+                            <Controller
+                                control={controlCreateBoard}
+                                name="workspace"
+                                render={({
+                                    field: { onChange, value },
+                                }) => (
+                                    <Autocomplete
+                                        fullWidth
+                                        size="medium"
+                                        disablePortal
+                                        id="workspace"
+                                        options={workspaces ?? []}
+                                        value={value}
+                                        onChange={(_event, newType: any,) => {
+                                            onChange(newType);
+                                        }}
+                                        getOptionLabel={(option) => option.name}
+                                        renderInput={(params) => <TextField {...params}
+                                            error={Boolean(errorsCreateBoard.workspace)}
+                                            helperText={
+                                                errorsCreateBoard.workspace && errorsCreateBoard.workspace.id
+                                                    ? errorsCreateBoard.workspace.id.message
+                                                    : ""
+                                            } />}
+                                    />
+                                )}
                             />
                         </Stack>
                         <Stack flexDirection={"column"} gap={0.5}>
@@ -521,13 +671,31 @@ const ModalProvider = ({ children }: IModalContext) => {
                             >
                                 Visibility
                             </Typography>
-                            <Autocomplete
-                                fullWidth
-                                size="medium"
-                                disablePortal
-                                id="combo-box-demo"
-                                options={["Private", "Workspace", "Public"]}
-                                renderInput={(params) => <TextField {...params} />}
+                            <Controller
+                                control={controlCreateBoard}
+                                name="visibility"
+                                render={({
+                                    field: { onChange },
+                                }) => (
+                                    <Autocomplete
+                                        fullWidth
+                                        size="medium"
+                                        disablePortal
+                                        id="visibility"
+                                        options={dataBVisibilites ?? []}
+                                        onChange={(_event, newType: any,) => {
+                                            onChange(newType);
+                                        }}
+                                        getOptionLabel={(option) => option.name}
+                                        renderInput={(params) => <TextField {...params}
+                                            error={Boolean(errorsCreateBoard.visibility)}
+                                            helperText={
+                                                errorsCreateBoard.visibility && errorsCreateBoard.visibility.id
+                                                    ? errorsCreateBoard.visibility.id.message
+                                                    : ""
+                                            } />}
+                                    />
+                                )}
                             />
                         </Stack>
                     </Stack>
@@ -555,7 +723,8 @@ const ModalProvider = ({ children }: IModalContext) => {
                         size="small"
                         fullWidth={isPhoneScreen}
                         variant="contained"
-                        onClick={handleCreateBoard}
+                        type="submit"
+                        onClick={handleSubmitCreateBoard(onSubmitCreateBoard)}
                         color="buttongreen"
                         sx={{
                             fontWeight: "bold",
@@ -624,10 +793,10 @@ const ModalProvider = ({ children }: IModalContext) => {
                                 name="name"
                                 render={({ field }) => (
                                     <TextField
+                                        {...field}
                                         id="name"
                                         size="medium"
                                         error={Boolean(errorsCreateWorkspace.name)}
-                                        {...field}
                                         helperText={
                                             errorsCreateWorkspace.name
                                                 ? errorsCreateWorkspace.name.message
@@ -648,7 +817,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                                 control={controlCreateWorkspace}
                                 name="type_id"
                                 render={({
-                                    field: { onChange, value },
+                                    field: { onChange },
                                 }) => (
                                     <Autocomplete
                                         fullWidth
@@ -663,8 +832,8 @@ const ModalProvider = ({ children }: IModalContext) => {
                                         renderInput={(params) => <TextField {...params}
                                             error={Boolean(errorsCreateWorkspace.type_id)}
                                             helperText={
-                                                errorsCreateWorkspace.type_id
-                                                    ? errorsCreateWorkspace.type_id.message
+                                                errorsCreateWorkspace.type_id && errorsCreateWorkspace.type_id.id
+                                                    ? errorsCreateWorkspace.type_id.id.message
                                                     : ""
                                             } />
                                         }
