@@ -40,7 +40,7 @@ interface Props {
 export default function PageLayout(props: Props) {
     const [isOpenModalLogout, setIsOpenModalLogout] = React.useState(false);
     const { logout, workspaceId, setWorkspaceId } = useAuth();
-    const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace } = useModal();
+    const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace, setWorksId } = useModal();
     const { data: dataWorkspace } = useWorkspace();
     const { data: dataUser } = useUserData();
 
@@ -322,6 +322,7 @@ export default function PageLayout(props: Props) {
                                             <IconButton onClick={(event) => {
                                                 event.preventDefault();
                                                 setIsOpenModalUser(true);
+                                                setWorksId(dat.workspace_id);
                                             }}>
                                                 <Icon path={mdiPlus} size={1} color={pathName === "/home/members" && workspaceId === dat.workspace_id
                                                     ? "secondary.main"

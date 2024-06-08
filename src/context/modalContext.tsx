@@ -3,10 +3,14 @@ import React, {
     createContext,
     ReactNode,
     useCallback,
+    useEffect,
     useMemo,
     useState,
 } from "react";
 import Stack from "@mui/material/Stack";
+import * as yup from "yup";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
@@ -18,6 +22,24 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import useWorkspaceTypes from "@/services/queries/useWorkspaceTypes";
 import useAllUsers from "@/services/queries/useAllUsers";
+import axios from "../services/axios";
+import { useQueryClient } from "react-query";
+import Swal from "sweetalert2";
+import defaultAxios, { AxiosError } from "axios";
+import { DefaultIdResponse, DefaultResponse, TUser } from "@/constants/types";
+
+interface IInviteUser {
+    invited_user_id: number;
+    workspace_id: number;
+}
+const schemaInviteUser = yup
+    .object({
+        invited_user_id: yup
+            .number()
+            .required("Kolom wajib diisi"),
+        workspace_id: yup.number().required("Kolom wajib diisi"),
+    })
+    .required();
 
 interface State {
     isOpenModalUser: boolean;
@@ -26,6 +48,7 @@ interface State {
     setIsOpenModalBoard: (value: boolean) => void;
     isOpenModalWorkspace: boolean;
     setIsOpenModalWorkspace: (value: boolean) => void;
+    setWorksId: (value: number) => void;
 }
 
 interface IModalContext {
@@ -38,13 +61,18 @@ const ModalProvider = ({ children }: IModalContext) => {
     const theme = useTheme();
     const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
 
+    const [wokrsId, setWorksId] = useState<number>();
+    const [isLoading, setLoading] = useState<boolean>(false);
     const [isOpenModalUser, setIsOpenModalUser] = useState(false);
     const [isOpenModalBoard, setIsOpenModalBoard] = useState(false);
     const [isOpenModalWorkspace, setIsOpenModalWorkspace] = useState(false);
     const { data: dataWTypes } = useWorkspaceTypes();
     const { data: dataAUssers } = useAllUsers();
 
-    const closeModalUser = () => setIsOpenModalUser(false);
+    const closeModalUser = () => {
+        setIsOpenModalUser(false);
+        resetInviteUser();
+    };
     const handleInvite = () => {
         closeModalUser();
     };
@@ -59,6 +87,148 @@ const ModalProvider = ({ children }: IModalContext) => {
         closeModalWorkspace();
     };
 
+    const handleErrorResponse = useCallback((error: any) => {
+        if (defaultAxios.isAxiosError(error)) {
+            const serverError = error as AxiosError<any>;
+            if (serverError && serverError.response) {
+                console.log(`serverError`, serverError.response);
+                if (serverError.response!.status === 400) {
+                    Swal.fire({
+                        title: "Something's Wrong!",
+                        text: `${serverError.response.data.data.errors.message}`,
+                        icon: "error",
+                        confirmButtonColor: "primary",
+                        customClass: {
+                            container: "my-swal",
+                        },
+                    });
+                    console.log("", `${serverError.response.data.data}`, [
+                        { text: "OK" },
+                    ]);
+                }
+
+                if (serverError.response!.status === 401) {
+                    Swal.fire({
+                        title: `Wrong email or password`,
+                        icon: "error",
+                        confirmButtonColor: "primary",
+                        customClass: {
+                            container: "my-swal",
+                        },
+                    });
+                    console.log("", `${serverError.response.data.message}`, [
+                        { text: "OK" },
+                    ]);
+                }
+
+                if (serverError.response!.status === 422) {
+                    Swal.fire({
+                        title: "Something's Wrong!",
+                        text: `Ada error validasi`,
+                        icon: "error",
+                        confirmButtonColor: "primary",
+                        customClass: {
+                            container: "my-swal",
+                        },
+                    });
+                    console.log("", `${serverError.response.data.message}`, [
+                        { text: "OK" },
+                    ]);
+                }
+
+                if (serverError.response!.status === 403) {
+                    Swal.fire({
+                        title: "Something's Wrong!",
+                        text: `${serverError.response.data.message}`,
+                        icon: "error",
+                        confirmButtonColor: "primary",
+                        customClass: {
+                            container: "my-swal",
+                        },
+                    });
+                    console.log("", `${serverError.response.data.data}`, [
+                        { text: "OK" },
+                    ]);
+                }
+            } else {
+                console.log("", `Something's Wrong! Silahkan coba lagi.`, [
+                    { text: "OK" },
+                ]);
+            }
+        }
+    }, []);
+
+    const initialValuesInviteUser = React.useMemo(
+        () => ({
+            invited_user_id: undefined,
+            workspace_id: wokrsId ?? undefined,
+        }),
+        [wokrsId],
+    );
+
+    const {
+        handleSubmit: handleSubmitInviteUser,
+        setValue: setValueInviteUser,
+        watch: watchInviteUser,
+        reset: resetInviteUser,
+    } = useForm<IInviteUser>({
+        resolver: yupResolver(schemaInviteUser),
+        defaultValues: initialValuesInviteUser,
+    });
+
+    const watchUser = watchInviteUser("invited_user_id");
+
+    const inviteUser = useCallback(
+        async (values: IInviteUser) => {
+            setLoading(true);
+            try {
+                const { data } = await axios.post<DefaultIdResponse>(
+                    "workspace/invite", {
+                    invited_user_id: values.invited_user_id,
+                    workspace_id: values.workspace_id,
+                }, {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }
+                );
+                if (data.insertId) {
+                    Swal.fire({
+                        title: "Invitation Sent",
+                        position: "top-end",
+                        showConfirmButton: false,
+                        icon: "success",
+                        toast: true,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showCloseButton: true,
+                        customClass: {
+                            container: "my-swal",
+                        },
+                    });
+                    closeModalUser();
+                }
+                setLoading(false);
+            } catch (error) {
+                setLoading(false);
+                console.log(error)
+                handleErrorResponse(error);
+            }
+        },
+        [closeModalUser, handleErrorResponse],
+    );
+
+    const onSubmitInviteUser = (data: IInviteUser) => {
+        console.log(data);
+        inviteUser(data);
+    };
+
+    useEffect(() => {
+        if (wokrsId) {
+            setValueInviteUser('workspace_id', wokrsId);
+        }
+    }, [setValueInviteUser, wokrsId]);
+
     const value = useMemo(() => ({
         isOpenModalUser,
         setIsOpenModalUser,
@@ -66,6 +236,7 @@ const ModalProvider = ({ children }: IModalContext) => {
         setIsOpenModalBoard,
         isOpenModalWorkspace,
         setIsOpenModalWorkspace,
+        setWorksId,
     }), [isOpenModalBoard, isOpenModalUser, isOpenModalWorkspace]);
 
     return (
@@ -84,86 +255,95 @@ const ModalProvider = ({ children }: IModalContext) => {
                     },
                 }}
             >
-                <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    padding={isPhoneScreen ? 2.5 : 4.5}
+                <form
+                    onSubmit={handleSubmitInviteUser(onSubmitInviteUser)}
                 >
-                    <DialogTitle
-                        sx={{ padding: 0 }}
-                        fontSize={32}
-                        fontWeight={700}
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        padding={isPhoneScreen ? 2.5 : 4.5}
                     >
-                        Invite to Workspace
-                    </DialogTitle>
-                    {!isPhoneScreen &&
-                        <IconButton
-                            aria-label="close"
-                            onClick={closeModalUser}
-                            sx={{
-                                color: (theme) => theme.palette.grey[500],
-                            }}
+                        <DialogTitle
+                            sx={{ padding: 0 }}
+                            fontSize={32}
+                            fontWeight={700}
                         >
-                            <CloseIcon />
-                        </IconButton>}
-                </Stack>
-                <DialogContent
-                    sx={{
-                        borderTop:
-                            "1px solid var(--text-primary-thin, #A8B4AF)",
-                        padding: isPhoneScreen ? 2.5 : 4.5,
-                    }}
-                >
-                    <Stack flexDirection={"column"} gap={0.5}>
-                        <Typography
-                            fontWeight={500}
-                        >
-                            User
-                        </Typography>
-                        <Autocomplete
-                            fullWidth
-                            size="medium"
-                            disablePortal
-                            id="combo-box-demo"
-                            options={dataAUssers ?? []}
-                            getOptionLabel={(option) => option.username}
-                            renderInput={(params) => <TextField {...params} />}
-                        />
+                            Invite to Workspace
+                        </DialogTitle>
+                        {!isPhoneScreen &&
+                            <IconButton
+                                aria-label="close"
+                                onClick={closeModalUser}
+                                sx={{
+                                    color: (theme) => theme.palette.grey[500],
+                                }}
+                            >
+                                <CloseIcon />
+                            </IconButton>}
                     </Stack>
-                </DialogContent>
-                <DialogActions
-                    disableSpacing
-                    sx={{ padding: isPhoneScreen ? 2.5 : 4.5, flexDirection: isPhoneScreen ? 'column' : 'row' }}
-                >
-                    {isPhoneScreen &&
-                        <Button
-                            size="small"
-                            fullWidth={isPhoneScreen}
-                            variant="outlined"
-                            onClick={closeModalUser}
-                            color="primary"
-                            sx={{
-                                fontWeight: "bold",
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                    }
-                    <Button
-                        size="small"
-                        fullWidth={isPhoneScreen}
-                        variant="contained"
-                        onClick={handleInvite}
-                        color="buttongreen"
+                    <DialogContent
                         sx={{
-                            fontWeight: "bold",
-                            marginTop: isPhoneScreen ? 2 : 0,
+                            borderTop:
+                                "1px solid var(--text-primary-thin, #A8B4AF)",
+                            padding: isPhoneScreen ? 2.5 : 4.5,
                         }}
                     >
-                        Invite User
-                    </Button>
-                </DialogActions>
+                        <Stack flexDirection={"column"} gap={0.5}>
+                            <Typography
+                                fontWeight={500}
+                            >
+                                User
+                            </Typography>
+                            <Autocomplete
+                                fullWidth
+                                size="medium"
+                                disablePortal
+                                id="combo-box-demo"
+                                options={dataAUssers ?? []}
+                                getOptionLabel={(option) => option.username}
+                                onChange={(_event, user: any) => {
+                                    setValueInviteUser('invited_user_id', user.id)
+                                }
+                                }
+                                renderInput={(params) => <TextField {...params} />}
+                            />
+                        </Stack>
+                    </DialogContent>
+                    <DialogActions
+                        disableSpacing
+                        sx={{ padding: isPhoneScreen ? 2.5 : 4.5, flexDirection: isPhoneScreen ? 'column' : 'row' }}
+                    >
+                        {isPhoneScreen &&
+                            <Button
+                                size="small"
+                                fullWidth={isPhoneScreen}
+                                variant="outlined"
+                                onClick={closeModalUser}
+                                color="primary"
+                                sx={{
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        }
+                        <Button
+                            size="small"
+                            disabled={!watchUser}
+                            fullWidth={isPhoneScreen}
+                            variant="contained"
+                            type="submit"
+                            color="buttongreen"
+                            sx={{
+                                fontWeight: "bold",
+                                marginTop: isPhoneScreen ? 2 : 0,
+                            }}
+                        >
+                            Invite User
+                        </Button>
+                    </DialogActions>
+                </form>
             </Dialog>
             <Dialog
                 maxWidth="xs"

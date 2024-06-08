@@ -26,7 +26,7 @@ const Member: NextPage = () => {
   const theme = useTheme();
   const { workspaceId } = useAuth();
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
-  const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace } = useModal();
+  const { setIsOpenModalUser, setWorksId } = useModal();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspaceDetail(workspaceId);
   const { data: dataMembers, refetch: refetchMembers } = useWorkspaceMembers(workspaceId);
 
@@ -139,7 +139,7 @@ const Member: NextPage = () => {
                   </Stack>
                 </Stack>
                 <Button
-                  onClick={() => setIsOpenModalUser(true)} sx={{ fontSize: 12, height: 35 }} variant="contained" color="buttongreen" startIcon={
+                  onClick={() => { setIsOpenModalUser(true); setWorksId(workspaceId) }} sx={{ fontSize: 12, height: 35 }} variant="contained" color="buttongreen" startIcon={
                     <PersonAddAltIcon sx={{ height: 16, width: 16 }}
                     />}>
                   Invite Workspace members

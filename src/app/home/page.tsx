@@ -195,20 +195,26 @@ const Home: NextPage = () => {
                         </Button>
                         <Button
                           fullWidth={isPhoneScreen}
+                          component={Link}
+                          onClick={() => handleExpand(dat.workspace_id)} href="/home/members"
                           sx={{ fontSize: 12 }} variant="contained" startIcon={
                             <PeopleIcon sx={{ height: 16, width: 16 }}
                             />}>
                           Members ({dat.member_count})
                         </Button>
                         {!isPhoneScreen &&
-                          <Button sx={{ fontSize: 12 }} variant="contained" startIcon={
-                            <SettingsIcon sx={{ height: 16, width: 16 }}
-                            />}>
+                          <Button
+                            component={Link}
+                            onClick={() => handleExpand(dat.workspace_id)} href="/home/settings" sx={{ fontSize: 12 }} variant="contained" startIcon={
+                              <SettingsIcon sx={{ height: 16, width: 16 }}
+                              />}>
                             Settings
                           </Button>}
                       </Stack>
                       {isPhoneScreen &&
-                        <Stack flexDirection={'row'} justifyContent={'flex-end'} width={'100%'} height={35}>
+                        <Stack
+                          component={Link}
+                          onClick={() => handleExpand(dat.workspace_id)} href="/home/settings" flexDirection={'row'} justifyContent={'flex-end'} width={'100%'} height={35}>
                           <Button fullWidth sx={{ fontSize: 12 }} variant="contained" startIcon={
                             <SettingsIcon sx={{ height: 16, width: 16 }}
                             />}>

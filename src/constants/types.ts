@@ -15,6 +15,7 @@ export interface AuthState {
   isLoading: boolean;
   isRegistered: boolean;
   workspaceId: number;
+  boardId: number;
   checkToken: (token: string) => void;
   login: (values: LoginBody) => void;
   logout: () => void;
@@ -23,6 +24,7 @@ export interface AuthState {
   handleAuthenticated: (value: boolean) => void;
   setRegistered: React.Dispatch<React.SetStateAction<boolean>>;
   setWorkspaceId: React.Dispatch<React.SetStateAction<number>>;
+  setBoardId: React.Dispatch<React.SetStateAction<number>>;
   handleSetToken: (token: any) => Promise<void>;
 }
 
@@ -76,6 +78,11 @@ export interface ErrorResponse {
 
 export type DefaultResponse = {
   code: number;
+  message: string;
+};
+
+export type DefaultIdResponse = {
+  insertId: number;
   message: string;
 };
 
@@ -179,6 +186,15 @@ export type GetWorkspaceTypesResponse = {
   created_at: string;
   updated_at: string;
 }[];
+
+export type TUser = {
+  id: number;
+  email: string;
+  username: string;
+  bio: string;
+  created_at: string;
+  updated_at: string;
+};
 
 export type GetAllUsersResponse = {
   id: number;

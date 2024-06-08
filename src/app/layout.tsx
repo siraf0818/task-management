@@ -1,6 +1,5 @@
 'use client'
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import * as React from "react";
 import Head from "next/head";
@@ -13,7 +12,12 @@ import AppProvider from "@/context";
 import { CookiesProvider } from "react-cookie";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
+import { Roboto } from 'next/font/google'
 
+const roboto = Roboto({
+  weight: '400',
+  subsets: ['latin'],
+})
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 

@@ -8,7 +8,7 @@ import React, {
     useMemo,
     useState,
 } from "react";
-import { tokenKey } from "../constants/common";
+import { boardKey, tokenKey, workspaceKey } from "../constants/common";
 import {
     AuthState,
     CheckToken,
@@ -22,7 +22,6 @@ import {
 import axios from "../services/axios";
 import { useQueryClient } from "react-query";
 import Swal from "sweetalert2";
-// import Router from "next/router";
 import { useRouter } from 'next/navigation'
 import { Password } from "@mui/icons-material";
 
@@ -38,6 +37,7 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     const [isPreparingApp, setPreparingApp] = useState<boolean>(true);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [workspaceId, setWorkspaceId] = useState<number>(0);
+    const [boardId, setBoardId] = useState<number>(0);
     const Router = useRouter();
     const cookies = useMemo(() => new Cookies(), []);
     const queryClient = useQueryClient();
@@ -45,6 +45,8 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     const handleRemoveToken = useCallback(async () => {
         try {
             await cookies.remove(tokenKey);
+            await cookies.remove(workspaceKey);
+            await cookies.remove(boardKey);
         } catch (error) {
             throw error;
         }
@@ -139,6 +141,14 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
             try {
                 if (token) {
                     setAuthenticated(true);
+                    const worksId = await cookies.get(workspaceKey);
+                    if (worksId) {
+                        setWorkspaceId(worksId);
+                    }
+                    const bId = await cookies.get(boardKey);
+                    if (bId) {
+                        setBoardId(bId);
+                    }
                 }
             } catch (error) {
                 handleErrorResponse(error);
@@ -179,6 +189,40 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
         },
         [cookies],
     );
+
+    const handleSetWorkspaceId = useCallback(
+        async (id: number) => {
+            try {
+                cookies.set(workspaceKey, id);
+            } catch (error) {
+                throw error;
+            }
+        },
+        [cookies],
+    );
+
+    const handleSetBoardId = useCallback(
+        async (id: number) => {
+            try {
+                cookies.set(boardKey, id);
+            } catch (error) {
+                throw error;
+            }
+        },
+        [cookies],
+    );
+
+    useEffect(() => {
+        if (workspaceId) {
+            handleSetWorkspaceId(workspaceId);
+        }
+    }, [handleSetWorkspaceId, workspaceId]);
+
+    useEffect(() => {
+        if (boardId) {
+            handleSetBoardId(boardId);
+        }
+    }, [boardId, handleSetBoardId]);
 
     const handleRegistered = () => {
         setRegistered(true);
@@ -239,7 +283,6 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
                         },
                     },
                 );
-                console.log(data.message);
                 if (data.message) {
                     Router.push("/");
                     // checkToken(data.data.token);
@@ -268,8 +311,10 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
             handleSetToken,
             workspaceId,
             setWorkspaceId,
+            boardId,
+            setBoardId,
         }),
-        [isAuthenticated, isLoading, isRegistered, checkToken, login, logout, register, handleSetToken, workspaceId],
+        [isAuthenticated, isLoading, isRegistered, checkToken, login, logout, register, handleSetToken, workspaceId, boardId],
     );
 
     if (isPreparingApp) return null;
