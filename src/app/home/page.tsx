@@ -29,7 +29,7 @@ import Link from "next/link";
 const Home: NextPage = () => {
   const theme = useTheme();
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
-  const { setIsOpenModalBoard } = useModal();
+  const { setIsOpenModalBoard, isFetchingItems, cancelFetchingItems } = useModal();
   const { setWorkspaceId } = useAuth();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspace();
   const { data: dataBoards, refetch: refetchBoards } = useRecentBoards();
@@ -105,6 +105,13 @@ const Home: NextPage = () => {
     },
     [handleErrorResponse, refetchBoards, refetchStarred, refetchWorkspace],
   );
+
+  React.useEffect(() => {
+    if (isFetchingItems) {
+      refetch();
+      cancelFetchingItems();
+    }
+  }, [cancelFetchingItems, isFetchingItems, refetch]);
 
   const handleExpand = (param: number) => {
     setWorkspaceId(param);

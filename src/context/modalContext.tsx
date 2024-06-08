@@ -26,18 +26,40 @@ import axios from "../services/axios";
 import { useQueryClient } from "react-query";
 import Swal from "sweetalert2";
 import defaultAxios, { AxiosError } from "axios";
-import { DefaultIdResponse, DefaultResponse, TUser } from "@/constants/types";
+import { DefaultResponse, TUser, TWType } from "@/constants/types";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 interface IInviteUser {
     invited_user_id: number;
     workspace_id: number;
 }
+
+interface ICreateWorkspace {
+    name: string;
+    type_id: TWType;
+    description?: string;
+}
+
 const schemaInviteUser = yup
     .object({
         invited_user_id: yup
             .number()
-            .required("Kolom wajib diisi"),
-        workspace_id: yup.number().required("Kolom wajib diisi"),
+            .required("Required"),
+        workspace_id: yup.number().required("Required"),
+    })
+    .required();
+
+const schemaCreateWorkspace = yup
+    .object({
+        name: yup
+            .string()
+            .required("Required"),
+        type_id: yup.object().shape({
+            id: yup.number().required("Required"),
+            name: yup.string().required("Required"),
+        }).required("Required"),
+        description: yup
+            .string(),
     })
     .required();
 
@@ -49,6 +71,9 @@ interface State {
     isOpenModalWorkspace: boolean;
     setIsOpenModalWorkspace: (value: boolean) => void;
     setWorksId: (value: number) => void;
+    isFetchingItems: boolean;
+    setFetchingItems: () => void;
+    cancelFetchingItems: () => void;
 }
 
 interface IModalContext {
@@ -62,6 +87,7 @@ const ModalProvider = ({ children }: IModalContext) => {
     const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
 
     const [wokrsId, setWorksId] = useState<number>();
+    const [isFetchingItems, setIsFetchingItems] = useState(false);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [isOpenModalUser, setIsOpenModalUser] = useState(false);
     const [isOpenModalBoard, setIsOpenModalBoard] = useState(false);
@@ -69,12 +95,18 @@ const ModalProvider = ({ children }: IModalContext) => {
     const { data: dataWTypes } = useWorkspaceTypes();
     const { data: dataAUssers } = useAllUsers();
 
+    const setFetchingItems = useCallback(() => {
+        setIsFetchingItems(true);
+    }, []);
+
+    const cancelFetchingItems = useCallback(() => {
+        setIsFetchingItems(false);
+    }, []);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const closeModalUser = () => {
         setIsOpenModalUser(false);
         resetInviteUser();
-    };
-    const handleInvite = () => {
-        closeModalUser();
     };
 
     const closeModalBoard = () => setIsOpenModalBoard(false);
@@ -83,9 +115,6 @@ const ModalProvider = ({ children }: IModalContext) => {
     };
 
     const closeModalWorkspace = () => setIsOpenModalWorkspace(false);
-    const handleCreateWorkspace = () => {
-        closeModalWorkspace();
-    };
 
     const handleErrorResponse = useCallback((error: any) => {
         if (defaultAxios.isAxiosError(error)) {
@@ -182,7 +211,7 @@ const ModalProvider = ({ children }: IModalContext) => {
         async (values: IInviteUser) => {
             setLoading(true);
             try {
-                const { data } = await axios.post<DefaultIdResponse>(
+                const { data } = await axios.post<DefaultResponse>(
                     "workspace/invite", {
                     invited_user_id: values.invited_user_id,
                     workspace_id: values.workspace_id,
@@ -219,8 +248,73 @@ const ModalProvider = ({ children }: IModalContext) => {
     );
 
     const onSubmitInviteUser = (data: IInviteUser) => {
-        console.log(data);
         inviteUser(data);
+    };
+
+    const initialValuesCreateWorkspace = React.useMemo(
+        () => ({
+            name: "",
+            type_id: { id: undefined, name: "" },
+            description: "",
+        }),
+        [],
+    );
+
+    const {
+        handleSubmit: handleSubmitCreateWorkspace,
+        formState: { errors: errorsCreateWorkspace },
+        control: controlCreateWorkspace,
+        reset: resetCreateWorkspace,
+    } = useForm<ICreateWorkspace>({
+        resolver: yupResolver(schemaCreateWorkspace),
+        defaultValues: initialValuesCreateWorkspace,
+    });
+
+    const createWorkspace = useCallback(
+        async (values: ICreateWorkspace) => {
+            setLoading(true);
+            try {
+                const { data } = await axios.post<DefaultResponse>(
+                    "workspace/", {
+                    name: values.name,
+                    type_id: values.type_id.id,
+                    description: values.description,
+                }, {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }
+                );
+                if (!data.errno) {
+                    Swal.fire({
+                        title: "Workspace Created",
+                        position: "top-end",
+                        showConfirmButton: false,
+                        icon: "success",
+                        toast: true,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showCloseButton: true,
+                        customClass: {
+                            container: "my-swal",
+                        },
+                    });
+                    resetCreateWorkspace();
+                    setFetchingItems();
+                    closeModalWorkspace();
+                }
+                setLoading(false);
+            } catch (error) {
+                setLoading(false);
+                console.log(error)
+                handleErrorResponse(error);
+            }
+        },
+        [handleErrorResponse, resetCreateWorkspace, setFetchingItems],
+    );
+
+    const onSubmitCreateWorkspace = (data: ICreateWorkspace) => {
+        createWorkspace(data);
     };
 
     useEffect(() => {
@@ -237,7 +331,10 @@ const ModalProvider = ({ children }: IModalContext) => {
         isOpenModalWorkspace,
         setIsOpenModalWorkspace,
         setWorksId,
-    }), [isOpenModalBoard, isOpenModalUser, isOpenModalWorkspace]);
+        isFetchingItems,
+        setFetchingItems,
+        cancelFetchingItems,
+    }), [cancelFetchingItems, isFetchingItems, isOpenModalBoard, isOpenModalUser, isOpenModalWorkspace, setFetchingItems]);
 
     return (
         <ModalContext.Provider value={value}>
@@ -255,96 +352,95 @@ const ModalProvider = ({ children }: IModalContext) => {
                     },
                 }}
             >
-                <form
-                    onSubmit={handleSubmitInviteUser(onSubmitInviteUser)}
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    padding={isPhoneScreen ? 2.5 : 4.5}
                 >
-                    <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        padding={isPhoneScreen ? 2.5 : 4.5}
+                    <DialogTitle
+                        sx={{ padding: 0 }}
+                        fontSize={32}
+                        fontWeight={700}
                     >
-                        <DialogTitle
-                            sx={{ padding: 0 }}
-                            fontSize={32}
-                            fontWeight={700}
-                        >
-                            Invite to Workspace
-                        </DialogTitle>
-                        {!isPhoneScreen &&
-                            <IconButton
-                                aria-label="close"
-                                onClick={closeModalUser}
-                                sx={{
-                                    color: (theme) => theme.palette.grey[500],
-                                }}
-                            >
-                                <CloseIcon />
-                            </IconButton>}
-                    </Stack>
-                    <DialogContent
-                        sx={{
-                            borderTop:
-                                "1px solid var(--text-primary-thin, #A8B4AF)",
-                            padding: isPhoneScreen ? 2.5 : 4.5,
-                        }}
-                    >
-                        <Stack flexDirection={"column"} gap={0.5}>
-                            <Typography
-                                fontWeight={500}
-                            >
-                                User
-                            </Typography>
-                            <Autocomplete
-                                fullWidth
-                                size="medium"
-                                disablePortal
-                                id="combo-box-demo"
-                                options={dataAUssers ?? []}
-                                getOptionLabel={(option) => option.username}
-                                onChange={(_event, user: any) => {
-                                    setValueInviteUser('invited_user_id', user.id)
-                                }
-                                }
-                                renderInput={(params) => <TextField {...params} />}
-                            />
-                        </Stack>
-                    </DialogContent>
-                    <DialogActions
-                        disableSpacing
-                        sx={{ padding: isPhoneScreen ? 2.5 : 4.5, flexDirection: isPhoneScreen ? 'column' : 'row' }}
-                    >
-                        {isPhoneScreen &&
-                            <Button
-                                size="small"
-                                fullWidth={isPhoneScreen}
-                                variant="outlined"
-                                onClick={closeModalUser}
-                                color="primary"
-                                sx={{
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                        }
-                        <Button
-                            size="small"
-                            disabled={!watchUser}
-                            fullWidth={isPhoneScreen}
-                            variant="contained"
-                            type="submit"
-                            color="buttongreen"
+                        Invite to Workspace
+                    </DialogTitle>
+                    {!isPhoneScreen &&
+                        <IconButton
+                            aria-label="close"
+                            onClick={closeModalUser}
                             sx={{
-                                fontWeight: "bold",
-                                marginTop: isPhoneScreen ? 2 : 0,
+                                color: (theme) => theme.palette.grey[500],
                             }}
                         >
-                            Invite User
+                            <CloseIcon />
+                        </IconButton>}
+                </Stack>
+                <DialogContent
+                    sx={{
+                        borderTop:
+                            "1px solid var(--text-primary-thin, #A8B4AF)",
+                        padding: isPhoneScreen ? 2.5 : 4.5,
+                    }}
+                >
+                    <Stack flexDirection={"column"} gap={0.5}>
+                        <Typography
+                            fontWeight={500}
+                        >
+                            User
+                        </Typography>
+                        <Autocomplete
+                            fullWidth
+                            size="medium"
+                            disablePortal
+                            id="combo-box-demo"
+                            options={dataAUssers ?? []}
+                            getOptionLabel={(option) => option.username}
+                            onChange={(_event, user: any) => {
+                                setValueInviteUser('invited_user_id', user.id)
+                            }
+                            }
+                            renderInput={(params) => <TextField {...params} />}
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions
+                    disableSpacing
+                    sx={{ padding: isPhoneScreen ? 2.5 : 4.5, flexDirection: isPhoneScreen ? 'column' : 'row' }}
+                >
+                    {isPhoneScreen &&
+                        <Button
+                            size="small"
+                            fullWidth={isPhoneScreen}
+                            variant="outlined"
+                            onClick={closeModalUser}
+                            color="primary"
+                            sx={{
+                                fontWeight: "bold",
+                            }}
+                        >
+                            Cancel
                         </Button>
-                    </DialogActions>
-                </form>
+                    }
+                    <LoadingButton
+                        loading={isLoading}
+                        onClick={handleSubmitInviteUser(onSubmitInviteUser)}
+                        size="small"
+                        disabled={!watchUser}
+                        fullWidth={isPhoneScreen}
+                        variant="contained"
+                        type="submit"
+                        color="buttongreen"
+                        sx={{
+                            fontWeight: "bold",
+                            marginTop: isPhoneScreen ? 2 : 0,
+                        }}
+                    >
+                        Invite User
+                    </LoadingButton>
+                </DialogActions>
             </Dialog>
+
             <Dialog
                 maxWidth="xs"
                 fullWidth={true}
@@ -454,7 +550,8 @@ const ModalProvider = ({ children }: IModalContext) => {
                             Cancel
                         </Button>
                     }
-                    <Button
+                    <LoadingButton
+                        loading={isLoading}
                         size="small"
                         fullWidth={isPhoneScreen}
                         variant="contained"
@@ -466,9 +563,10 @@ const ModalProvider = ({ children }: IModalContext) => {
                         }}
                     >
                         Create Board
-                    </Button>
+                    </LoadingButton>
                 </DialogActions>
             </Dialog>
+
             <Dialog
                 maxWidth="xs"
                 fullWidth={true}
@@ -521,9 +619,22 @@ const ModalProvider = ({ children }: IModalContext) => {
                             >
                                 Workspace name
                             </Typography>
-                            <OutlinedInput
-                                id="name"
-                                size="medium"
+                            <Controller
+                                control={controlCreateWorkspace}
+                                name="name"
+                                render={({ field }) => (
+                                    <TextField
+                                        id="name"
+                                        size="medium"
+                                        error={Boolean(errorsCreateWorkspace.name)}
+                                        {...field}
+                                        helperText={
+                                            errorsCreateWorkspace.name
+                                                ? errorsCreateWorkspace.name.message
+                                                : ""
+                                        }
+                                    />
+                                )}
                             />
                         </Stack>
                         <Stack flexDirection={"column"} gap={0.5}>
@@ -533,14 +644,32 @@ const ModalProvider = ({ children }: IModalContext) => {
                             >
                                 Workspace type
                             </Typography>
-                            <Autocomplete
-                                fullWidth
-                                size="medium"
-                                disablePortal
-                                id="combo-box-demo"
-                                options={dataWTypes ?? []}
-                                getOptionLabel={(option) => option.name}
-                                renderInput={(params) => <TextField {...params} />}
+                            <Controller
+                                control={controlCreateWorkspace}
+                                name="type_id"
+                                render={({
+                                    field: { onChange, value },
+                                }) => (
+                                    <Autocomplete
+                                        fullWidth
+                                        size="medium"
+                                        disablePortal
+                                        id="type_id"
+                                        options={dataWTypes ?? []}
+                                        onChange={(_event, newType: any,) => {
+                                            onChange(newType);
+                                        }}
+                                        getOptionLabel={(option) => option.name}
+                                        renderInput={(params) => <TextField {...params}
+                                            error={Boolean(errorsCreateWorkspace.type_id)}
+                                            helperText={
+                                                errorsCreateWorkspace.type_id
+                                                    ? errorsCreateWorkspace.type_id.message
+                                                    : ""
+                                            } />
+                                        }
+                                    />
+                                )}
                             />
                         </Stack>
                         <Stack flexDirection={"column"} gap={0.5}>
@@ -557,12 +686,24 @@ const ModalProvider = ({ children }: IModalContext) => {
                                     (optional)
                                 </Typography>
                             </Typography>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={5}
-                                size="medium"
-                                id="combo-box-demo"
+                            <Controller
+                                control={controlCreateWorkspace}
+                                name="description"
+                                render={({ field }) => (
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        rows={5}
+                                        size="medium"
+                                        id="description"
+                                        error={Boolean(errorsCreateWorkspace.description)}
+                                        helperText={
+                                            errorsCreateWorkspace.description
+                                                ? errorsCreateWorkspace.description.message
+                                                : ""
+                                        }
+                                        {...field}
+                                    />)}
                             />
                         </Stack>
                     </Stack>
@@ -585,11 +726,13 @@ const ModalProvider = ({ children }: IModalContext) => {
                             Cancel
                         </Button>
                     }
-                    <Button
+                    <LoadingButton
+                        loading={isLoading}
+                        onClick={handleSubmitCreateWorkspace(onSubmitCreateWorkspace)}
                         size="small"
                         fullWidth={isPhoneScreen}
                         variant="contained"
-                        onClick={handleCreateWorkspace}
+                        type="submit"
                         color="buttongreen"
                         sx={{
                             fontWeight: "bold",
@@ -597,7 +740,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                         }}
                     >
                         Create Workspace
-                    </Button>
+                    </LoadingButton>
                 </DialogActions>
             </Dialog>
         </ModalContext.Provider>

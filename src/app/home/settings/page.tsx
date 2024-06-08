@@ -7,9 +7,9 @@ import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import PrivateRoute from "@/routes/PrivateRoute";
-import { Avatar, Button, Grid, IconButton } from "@mui/material";
+import { Avatar, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton } from "@mui/material";
 import avatarAlt from "@/utils/avatarAlt";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import defaultAxios, { AxiosError } from "axios";
 import Swal from "sweetalert2";
 import { useModal } from "@/context/modalContext";
@@ -22,15 +22,23 @@ import useWorkspaceDetail from "@/services/queries/useWorkspaceDetail";
 import CloseIcon from '@mui/icons-material/Close';
 import Icon from '@mdi/react';
 import { mdiPencil } from "@mdi/js";
+import { DefaultResponse } from "@/constants/types";
+import axios from "@/services/axios";
+import { LoadingButton } from "@mui/lab";
+import { useRouter } from "next/navigation";
 
 const Member: NextPage = () => {
+  const [isOpenModalDelete, setIsOpenModalDelete] = React.useState(false);
+  const Router = useRouter();
+  const [isLoading, setLoading] = useState<boolean>(false);
   const theme = useTheme();
   const { workspaceId } = useAuth();
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
   const [isEdit, setIsEdit] = React.useState(false);
   const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace } = useModal();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspaceDetail(workspaceId);
-  const { data: dataMembers, refetch: refetchMembers } = useWorkspaceMembers(workspaceId);
+  const openModalDelete = () => setIsOpenModalDelete(true);
+  const closeModalDelete = () => setIsOpenModalDelete(false);
 
   const handleErrorResponse = useCallback((error: any) => {
     if (defaultAxios.isAxiosError(error)) {
@@ -93,13 +101,50 @@ const Member: NextPage = () => {
     async () => {
       try {
         refetchWorkspace();
-        refetchMembers();
       } catch (error) {
         console.log(error)
         handleErrorResponse(error);
       }
     },
-    [handleErrorResponse, refetchMembers, refetchWorkspace],
+    [handleErrorResponse, refetchWorkspace],
+  );
+
+  const deleteWorkpsace = useCallback(
+    async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.delete<DefaultResponse>(
+          `workspace/${workspaceId}`, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        }
+        );
+        console.log('data', data)
+        if (!data.errno) {
+          Swal.fire({
+            title: "Workspace Deleted",
+            position: "top-end",
+            showConfirmButton: false,
+            icon: "success",
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            showCloseButton: true,
+            customClass: {
+              container: "my-swal",
+            },
+          });
+          Router.push("/home");
+        }
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.log(error)
+        handleErrorResponse(error);
+      }
+    },
+    [Router, handleErrorResponse, workspaceId],
   );
 
   return (
@@ -158,54 +203,95 @@ const Member: NextPage = () => {
                 // gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
                 gap={1}
               >
-                {dataMembers && dataMembers.map((dat, idx) => {
-                  return <Stack key={idx} p={1.5} flexDirection={'row'} flex={1} borderTop={1} borderBottom={1} borderColor={'secondary.main'} justifyContent={'space-between'} alignItems={'center'}>
-                    <Stack gap={1} flexDirection={'row'}>
-                      <Avatar
-                        sx={{
-                          backgroundColor: "primary.main",
-                          width: 46,
-                          height: 46,
-                          color: 'white',
-                        }}
-                        alt={dat?.user_username ?? "-"}
-                      >
-                        {avatarAlt(dat?.user_username ?? "A")}
-                      </Avatar>
-                      <Stack>
-                        <Typography
-                          fontSize={14}
-                          fontWeight={500}
-                          color={"#c5c5c5"}
-                        >
-                          {dat?.user_username ?? "-"}
-                        </Typography>
-                        <Typography
-                          fontSize={14}
-                          fontWeight={500}
-                          color={"#c5c5c5"}
-                        >
-                          {dat?.user_email ?? "-"}
-                        </Typography>
-                      </Stack>
-                    </Stack>
-                    <Button
-                      onClick={() => console.log(dat.user_id)} sx={{ fontSize: 12, height: 35 }} variant="outlined" color="error" startIcon={
-                        <CloseIcon sx={{ height: 16, width: 16 }}
-                        />}>
-                      Remove
-                    </Button>
-                  </Stack>
-                })}
+
               </Box>
             </Grid>
           }
           <Button
-            onClick={() => setIsOpenModalUser(true)} sx={{ fontSize: 12, p: 0, fontWeight: '700' }} variant="text" color="buttonred">
+            onClick={openModalDelete} sx={{ fontSize: 12, px: 1, py: 1, fontWeight: '700' }} variant="text" color="buttonred">
             Delete This Wokrspace ?
           </Button>
-
         </Grid>
+        <Dialog
+          maxWidth="xs"
+          fullWidth={true}
+          fullScreen={isPhoneScreen}
+          open={isOpenModalDelete}
+          onClose={closeModalDelete}
+          PaperProps={{
+            sx: {
+              borderRadius: 2,
+              maxWidth: "960px",
+            },
+          }}
+        >
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            padding={isPhoneScreen ? 2.5 : 4.5}
+          >
+            <DialogTitle
+              sx={{ padding: 0 }}
+              fontSize={32}
+              fontWeight={700}
+            >
+              Delete
+            </DialogTitle>
+            {!isPhoneScreen &&
+              <IconButton
+                aria-label="close"
+                onClick={closeModalDelete}
+                sx={{
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>}
+          </Stack>
+          <DialogContent
+            sx={{
+              borderTop:
+                "1px solid var(--text-primary-thin, #A8B4AF)",
+              paddingTop: isPhoneScreen ? 2.5 : 4.5,
+              paddingX: isPhoneScreen ? 2.5 : 4.5,
+            }}
+          >
+            <Typography>
+              Are you sure want to delete this workspace permanently?
+            </Typography>
+          </DialogContent>
+          <DialogActions
+            sx={{ paddingX: isPhoneScreen ? 2.5 : 4.5, paddingBottom: isPhoneScreen ? 2.5 : 4.5, paddingTop: 3, flexDirection: isPhoneScreen ? 'column' : 'row' }}
+          >
+            {isPhoneScreen &&
+              <Button
+                fullWidth={isPhoneScreen}
+                variant="outlined"
+                onClick={closeModalDelete}
+                color="primary"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
+                Cancel
+              </Button>}
+            <LoadingButton
+              loading={isLoading}
+              fullWidth={isPhoneScreen}
+              variant="contained"
+              onClick={deleteWorkpsace}
+              color="error"
+              sx={{
+                fontWeight: "bold",
+                marginLeft: isPhoneScreen ? 0 : 16,
+                marginTop: isPhoneScreen ? 2 : 0,
+              }}
+            >
+              Delete
+            </LoadingButton>
+          </DialogActions>
+        </Dialog>
       </Stack>
     </PrivateRoute>
   );

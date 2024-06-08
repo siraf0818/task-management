@@ -78,12 +78,9 @@ export interface ErrorResponse {
 
 export type DefaultResponse = {
   code: number;
+  errno: number;
   message: string;
-};
-
-export type DefaultIdResponse = {
   insertId: number;
-  message: string;
 };
 
 export type UserResponse = {
@@ -101,8 +98,6 @@ export type GetUserDataResponse = {
   email: string;
   username: string;
   bio: string;
-  user_created_at: string;
-  user_updated_at: string;
   role_id: number;
   role_name: string;
 };
@@ -117,8 +112,6 @@ export type GetWorkspaceResponse = {
   visibility_id: number;
   workspace_visibility: string;
   role_name: string;
-  membership_created_at: string;
-  membership_updated_at: string;
   member_count: number;
   recent_boards: {
     id: number;
@@ -127,8 +120,6 @@ export type GetWorkspaceResponse = {
     background: number;
     visibility_id: number;
     workspace_id: number;
-    created_at: string;
-    updated_at: string;
     is_starred: number;
   }[];
 }[];
@@ -139,8 +130,6 @@ export type GetWorkspaceDetailResponse = {
   type_id: number;
   type_name: string;
   description: string;
-  created_at: string;
-  updated_at: string;
   member_count: number;
   user_role_on_workspace: "owner";
 };
@@ -164,8 +153,6 @@ export type GetWorkspaceBoardsResponse = {
   visibility_name: string;
   workspace_id: number;
   workspace_name: string;
-  board_created_at: string;
-  board_updated_at: string;
   is_starred: number;
 }[];
 
@@ -176,31 +163,20 @@ export type GetWorkspaceMembersResponse = {
   user_email: string;
   role_id: number;
   role_name: string;
-  membership_created_at: string;
-  membership_updated_at: string;
 }[];
 
-export type GetWorkspaceTypesResponse = {
+export type TWType = {
   id: number;
   name: string;
-  created_at: string;
-  updated_at: string;
-}[];
+};
+
+export type GetWorkspaceTypesResponse = TWType[];
 
 export type TUser = {
   id: number;
   email: string;
   username: string;
   bio: string;
-  created_at: string;
-  updated_at: string;
 };
 
-export type GetAllUsersResponse = {
-  id: number;
-  email: string;
-  username: string;
-  bio: string;
-  created_at: string;
-  updated_at: string;
-}[];
+export type GetAllUsersResponse = TUser[];
