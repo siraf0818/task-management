@@ -32,6 +32,7 @@ import useBoardVisibilities from "@/services/queries/useBoardVisibilities";
 import useWorkspace from "@/services/queries/useWorkspace";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./authContext";
+import useUserData from "@/services/queries/useUserData";
 
 interface IInviteUser {
     invited_user_id: number;
@@ -123,6 +124,7 @@ const ModalProvider = ({ children }: IModalContext) => {
     const { data: dataWTypes } = useWorkspaceTypes();
     const { data: dataBVisibilites } = useBoardVisibilities();
     const { data: dataAUssers } = useAllUsers();
+    const { data: dataUser } = useUserData();
     const { data: dataWorkspace } = useWorkspace();
 
     const workspaces = dataWorkspace?.map((li) => ({
@@ -358,7 +360,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                 handleErrorResponse(error);
             }
         },
-        [handleErrorResponse, resetCreateWorkspace, setFetchingItems],
+        [Router, closeModalWorkspace, handleErrorResponse, resetCreateWorkspace, setFetchingItems],
     );
 
     const onSubmitCreateWorkspace = (data: ICreateWorkspace) => {
@@ -512,7 +514,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                             size="medium"
                             disablePortal
                             id="combo-box-demo"
-                            options={dataAUssers ?? []}
+                            options={dataAUssers?.filter((li) => li.id !== dataUser?.user_id) ?? []}
                             getOptionLabel={(option) => option.username}
                             onChange={(_event, user: any) => {
                                 setValueInviteUser('invited_user_id', user.id)

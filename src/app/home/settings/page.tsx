@@ -59,7 +59,7 @@ const Member: NextPage = () => {
   const { workspaceId } = useAuth();
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
   const [isEdit, setIsEdit] = React.useState(false);
-  const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace } = useModal();
+  const { setFetchingItems } = useModal();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspaceDetail(workspaceId);
   const openModalDelete = () => setIsOpenModalDelete(true);
   const closeModalDelete = () => setIsOpenModalDelete(false);
@@ -199,6 +199,7 @@ const Member: NextPage = () => {
             },
           });
           refetch();
+          setFetchingItems();
         }
         setLoading(false);
       } catch (error) {
@@ -207,7 +208,7 @@ const Member: NextPage = () => {
         handleErrorResponse(error);
       }
     },
-    [dataWorkspace?.id, handleErrorResponse, refetch],
+    [dataWorkspace?.id, handleErrorResponse, refetch, setFetchingItems],
   );
 
   const onSubmitUpdateWorkspace = (data: IUpdateWorkspace) => {
@@ -303,126 +304,129 @@ const Member: NextPage = () => {
               </Stack>
             </Grid>
           }
-          <Grid item xs={12} mb={4}>
-            <Stack flexDirection={"column"} gap={1.5}>
-              <Stack flexDirection={"column"} gap={0.5}>
-                <Typography
-                  fontWeight={500}
-
-                >
-                  Workspace name
-                </Typography>
-                <Controller
-                  control={controlUpdateWorkspace}
-                  name="name"
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      id="name"
-                      size="medium"
-                      error={Boolean(errorsUpdateWorkspace.name)}
-                      helperText={
-                        errorsUpdateWorkspace.name
-                          ? errorsUpdateWorkspace.name.message
-                          : ""
-                      }
-                    />
-                  )}
-                />
-              </Stack>
-              <Stack flexDirection={"column"} gap={0.5}>
-                <Typography
-                  fontWeight={500}
-
-                >
-                  Workspace type
-                </Typography>
-                <Controller
-                  control={controlUpdateWorkspace}
-                  name="type_id"
-                  render={({
-                    field: { onChange, value },
-                  }) => (
-                    <Autocomplete
-                      fullWidth
-                      size="medium"
-                      disablePortal
-                      value={value}
-                      id="type_id"
-                      options={dataWTypes ?? []}
-                      onChange={(_event, newType: any,) => {
-                        onChange(newType);
-                      }}
-                      getOptionLabel={(option) => option.name}
-                      renderInput={(params) => <TextField {...params}
-                        error={Boolean(errorsUpdateWorkspace.type_id)}
-                        helperText={
-                          errorsUpdateWorkspace.type_id && errorsUpdateWorkspace.type_id.id
-                            ? errorsUpdateWorkspace.type_id.id.message
-                            : ""
-                        } />
-                      }
-                    />
-                  )}
-                />
-              </Stack>
-              <Stack flexDirection={"column"} gap={0.5}>
-                <Typography
-                  fontWeight={500}
-
-                >
-                  Workspace description{" "}
+          {dataWorkspace?.user_role_on_workspace === "owner" && <>
+            <Grid item xs={12} mb={4}>
+              <Stack flexDirection={"column"} gap={1.5}>
+                <Stack flexDirection={"column"} gap={0.5}>
                   <Typography
                     fontWeight={500}
-                    display={"inline"}
-                    color="#7C8883"
+
                   >
-                    (optional)
+                    Workspace name
                   </Typography>
-                </Typography>
-                <Controller
-                  control={controlUpdateWorkspace}
-                  name="description"
-                  render={({ field }) => (
-                    <TextField
-                      fullWidth
-                      multiline
-                      rows={5}
-                      size="medium"
-                      id="description"
-                      error={Boolean(errorsUpdateWorkspace.description)}
-                      helperText={
-                        errorsUpdateWorkspace.description
-                          ? errorsUpdateWorkspace.description.message
-                          : ""
-                      }
-                      {...field}
-                    />)}
-                />
+                  <Controller
+                    control={controlUpdateWorkspace}
+                    name="name"
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        id="name"
+                        size="medium"
+                        error={Boolean(errorsUpdateWorkspace.name)}
+                        helperText={
+                          errorsUpdateWorkspace.name
+                            ? errorsUpdateWorkspace.name.message
+                            : ""
+                        }
+                      />
+                    )}
+                  />
+                </Stack>
+                <Stack flexDirection={"column"} gap={0.5}>
+                  <Typography
+                    fontWeight={500}
+
+                  >
+                    Workspace type
+                  </Typography>
+                  <Controller
+                    control={controlUpdateWorkspace}
+                    name="type_id"
+                    render={({
+                      field: { onChange, value },
+                    }) => (
+                      <Autocomplete
+                        fullWidth
+                        size="medium"
+                        disablePortal
+                        value={value}
+                        id="type_id"
+                        options={dataWTypes ?? []}
+                        onChange={(_event, newType: any,) => {
+                          onChange(newType);
+                        }}
+                        getOptionLabel={(option) => option.name}
+                        renderInput={(params) => <TextField {...params}
+                          error={Boolean(errorsUpdateWorkspace.type_id)}
+                          helperText={
+                            errorsUpdateWorkspace.type_id && errorsUpdateWorkspace.type_id.id
+                              ? errorsUpdateWorkspace.type_id.id.message
+                              : ""
+                          } />
+                        }
+                      />
+                    )}
+                  />
+                </Stack>
+                <Stack flexDirection={"column"} gap={0.5}>
+                  <Typography
+                    fontWeight={500}
+
+                  >
+                    Workspace description{" "}
+                    <Typography
+                      fontWeight={500}
+                      display={"inline"}
+                      color="#7C8883"
+                    >
+                      (optional)
+                    </Typography>
+                  </Typography>
+                  <Controller
+                    control={controlUpdateWorkspace}
+                    name="description"
+                    render={({ field }) => (
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows={5}
+                        size="medium"
+                        id="description"
+                        error={Boolean(errorsUpdateWorkspace.description)}
+                        helperText={
+                          errorsUpdateWorkspace.description
+                            ? errorsUpdateWorkspace.description.message
+                            : ""
+                        }
+                        {...field}
+                      />)}
+                  />
+                </Stack>
+                <LoadingButton
+                  loading={isLoading}
+                  onClick={handleSubmitUpdateWorkspace(onSubmitUpdateWorkspace)}
+                  size="small"
+                  fullWidth={isPhoneScreen}
+                  variant="contained"
+                  type="submit"
+                  color="buttongreen"
+                  sx={{
+                    fontWeight: "bold",
+                    marginTop: isPhoneScreen ? 2 : 0,
+                    py: 1,
+                    px: 2,
+                  }}
+                >
+                  Save
+                </LoadingButton>
               </Stack>
-              <LoadingButton
-                loading={isLoading}
-                onClick={handleSubmitUpdateWorkspace(onSubmitUpdateWorkspace)}
-                size="small"
-                fullWidth={isPhoneScreen}
-                variant="contained"
-                type="submit"
-                color="buttongreen"
-                sx={{
-                  fontWeight: "bold",
-                  marginTop: isPhoneScreen ? 2 : 0,
-                  py: 1,
-                  px: 2,
-                }}
-              >
-                Save
-              </LoadingButton>
-            </Stack>
-          </Grid>
-          <Button
-            onClick={openModalDelete} sx={{ fontSize: 12, px: 1, py: 1, fontWeight: '700' }} variant="text" color="buttonred">
-            Delete This Wokrspace ?
-          </Button>
+            </Grid>
+            <Button
+              onClick={openModalDelete} sx={{ fontSize: 12, px: 1, py: 1, fontWeight: '700' }} variant="text" color="buttonred">
+              Delete This Wokrspace ?
+            </Button>
+          </>}
+
         </Grid>
         <Dialog
           maxWidth="xs"

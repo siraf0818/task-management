@@ -133,7 +133,7 @@ export type GetWorkspaceDetailResponse = {
   type_name: string;
   description: string;
   member_count: number;
-  user_role_on_workspace: "owner";
+  user_role_on_workspace: string;
 };
 
 export type GetRecentBoardsResponse = {
@@ -189,3 +189,23 @@ export type TBVisibility = {
 };
 
 export type GetBoardVisibilitiesResponse = TBVisibility[];
+
+export type TUInvitation = {
+  invitation_id: number;
+  inviter_user_id: number;
+  inviter_user_name: string;
+  workspace_id: number;
+  workspace_name: string;
+  type_id: number;
+  workspace_type: string;
+};
+
+export type GetWorkspaceInvitationsResponse = TUInvitation[];
+
+export type TNotif = {
+  id: number;
+  user_id: number;
+  notification: string;
+};
+
+export type GetNotificationsResponse = TNotif[];

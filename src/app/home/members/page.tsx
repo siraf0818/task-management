@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import PrivateRoute from "@/routes/PrivateRoute";
-import { Avatar, Button, Grid } from "@mui/material";
+import { Avatar, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton } from "@mui/material";
 import avatarAlt from "@/utils/avatarAlt";
 import { useCallback } from "react";
 import defaultAxios, { AxiosError } from "axios";
@@ -21,14 +21,30 @@ import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import useWorkspaceDetail from "@/services/queries/useWorkspaceDetail";
 import CloseIcon from '@mui/icons-material/Close';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import useUserData from "@/services/queries/useUserData";
+import { DefaultResponse } from "@/constants/types";
+import axios from "@/services/axios";
+import { LoadingButton } from "@mui/lab";
+import { useRouter } from "next/navigation";
 
 const Member: NextPage = () => {
   const theme = useTheme();
   const { workspaceId } = useAuth();
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
+  const [isLoading, setLoading] = React.useState<boolean>(false);
+  const [id, setId] = React.useState<number>();
+  const [idKick, setIdKick] = React.useState<number>();
+  const [name, setName] = React.useState<string>();
+  const [role, setRole] = React.useState<string>();
+  const isLaptopScreen = useMediaQuery(theme.breakpoints.up("lg"));
+  const Router = useRouter();
   const { setIsOpenModalUser, setWorksId } = useModal();
+  const { data: dataUser } = useUserData();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspaceDetail(workspaceId);
   const { data: dataMembers, refetch: refetchMembers } = useWorkspaceMembers(workspaceId);
+  const [isOpenModalLeave, setIsOpenModalLeave] = React.useState(false);
+  const openModalLeave = () => setIsOpenModalLeave(true);
+  const closeModalLeave = () => setIsOpenModalLeave(false);
 
   const handleErrorResponse = useCallback((error: any) => {
     if (defaultAxios.isAxiosError(error)) {
@@ -100,6 +116,47 @@ const Member: NextPage = () => {
     [handleErrorResponse, refetchMembers, refetchWorkspace],
   );
 
+  const leave = useCallback(
+    async () => {
+      setLoading(true);
+      try {
+        const { data: dataN } = await axios.delete<DefaultResponse>(
+          `workspace/${dataWorkspace?.id}/member/${idKick}/kick`, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        }
+        );
+        if (!dataN.errno) {
+          Swal.fire({
+            title: "Member Removed",
+            position: "top-end",
+            showConfirmButton: false,
+            icon: "success",
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            showCloseButton: true,
+            customClass: {
+              container: "my-swal",
+            },
+          });
+          refetch();
+          closeModalLeave();
+          if ((role === "owner" || id === dataUser?.user_id)) {
+            Router.push("/home");
+          }
+        }
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.log(error)
+        handleErrorResponse(error);
+      }
+    },
+    [Router, dataUser?.user_id, dataWorkspace?.id, handleErrorResponse, id, idKick, refetch, role],
+  );
+
   return (
     <PrivateRoute>
       <Stack spacing={4.5}>
@@ -139,10 +196,10 @@ const Member: NextPage = () => {
                   </Stack>
                 </Stack>
                 <Button
-                  onClick={() => { setIsOpenModalUser(true); setWorksId(workspaceId) }} sx={{ fontSize: 12, height: 35 }} variant="contained" color="buttongreen" startIcon={
+                  onClick={() => { setIsOpenModalUser(true); setWorksId(workspaceId) }} sx={{ fontSize: 12, height: 35, mt: 0.5 }} variant="contained" color="buttongreen" startIcon={
                     <PersonAddAltIcon sx={{ height: 16, width: 16 }}
                     />}>
-                  Invite Workspace members
+                  {isLaptopScreen ? "Invite members" : "Invite"}
                 </Button>
               </Stack>
             </Grid>
@@ -192,19 +249,103 @@ const Member: NextPage = () => {
                         </Typography>
                       </Stack>
                     </Stack>
-                    <Button
-                      onClick={() => console.log(dat.user_id)} sx={{ fontSize: 12, height: 35 }} variant="outlined" color="error" startIcon={
-                        <CloseIcon sx={{ height: 16, width: 16 }}
-                        />}>
-                      {dat.role_name === "owner" ? 'Leave' : 'Remove'}
-                    </Button>
+                    {(dataWorkspace?.user_role_on_workspace === "owner" || dat.user_id === dataUser?.user_id) &&
+                      <Button
+                        onClick={() => { setId(dat.user_id); setIdKick(dat.membership_id); setName(dat.user_username); setRole(dat.role_name); openModalLeave(); }} sx={{ fontSize: 12, height: 35 }} variant="outlined" color="error" startIcon={
+                          <CloseIcon sx={{ height: 16, width: 16 }}
+                          />}>
+                        {(dat.role_name === "owner" || dat.user_id === dataUser?.user_id) ? 'Leave' : 'Remove'}
+                      </Button>
+                    }
                   </Stack>
                 })}
               </Box>
             </Grid>
           }
-
         </Grid>
+
+        <Dialog
+          maxWidth="xs"
+          fullWidth={true}
+          fullScreen={isPhoneScreen}
+          open={isOpenModalLeave}
+          onClose={closeModalLeave}
+          PaperProps={{
+            sx: {
+              borderRadius: 2,
+              maxWidth: "960px",
+            },
+          }}
+        >
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            padding={isPhoneScreen ? 2.5 : 4.5}
+          >
+            <DialogTitle
+              sx={{ padding: 0 }}
+              fontSize={32}
+              fontWeight={700}
+            >
+              {(role === "owner" || id === dataUser?.user_id) ? "Leave" : "Remove"}
+            </DialogTitle>
+            {!isPhoneScreen &&
+              <IconButton
+                aria-label="close"
+                onClick={closeModalLeave}
+                sx={{
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>}
+          </Stack>
+          <DialogContent
+            sx={{
+              borderTop:
+                "1px solid var(--text-primary-thin, #A8B4AF)",
+              paddingTop: isPhoneScreen ? 2.5 : 4.5,
+              paddingX: isPhoneScreen ? 2.5 : 4.5,
+            }}
+          >
+            <Typography>
+              Are you sure want to
+              {(role === "owner" || id === dataUser?.user_id) ? " leave" : ` remove ${name}`} from this workspace?
+            </Typography>
+          </DialogContent>
+          <DialogActions
+            sx={{ paddingX: isPhoneScreen ? 2.5 : 4.5, paddingBottom: isPhoneScreen ? 2.5 : 4.5, paddingTop: 3, flexDirection: isPhoneScreen ? 'column' : 'row' }}
+          >
+            {isPhoneScreen &&
+              <LoadingButton
+                loading={isLoading}
+                fullWidth={isPhoneScreen}
+                variant="outlined"
+                onClick={closeModalLeave}
+                color="primary"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
+                Cancel
+              </LoadingButton>}
+            <LoadingButton
+              loading={isLoading}
+              fullWidth={isPhoneScreen}
+              variant="contained"
+              onClick={leave}
+              color="error"
+              sx={{
+                fontWeight: "bold",
+                marginLeft: isPhoneScreen ? 0 : 16,
+                marginTop: isPhoneScreen ? 2 : 0,
+              }}
+            >
+              {(role === "owner" || id === dataUser?.user_id) ? "Leave" : "Remove"}
+            </LoadingButton>
+          </DialogActions>
+        </Dialog>
       </Stack>
     </PrivateRoute>
   );

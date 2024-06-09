@@ -129,13 +129,15 @@ const Board: NextPage = () => {
                     {avatarAlt(dataWorkspace.workspace_name)}
                   </Typography>
                 </Avatar>
-                <Stack>
+                <Stack whiteSpace={'normal'}>
                   <Typography
                     fontWeight={"600"}
                   >
                     {dataWorkspace.workspace_name}
                   </Typography>
-                  <Typography
+                  <Typography sx={{
+                    whiteSpace: 'normal'
+                  }}
                   >
                     {dataWorkspace.description}
                   </Typography>
