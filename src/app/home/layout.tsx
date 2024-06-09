@@ -48,9 +48,10 @@ interface Props {
 }
 
 export default function PageLayout(props: Props) {
-    const [isOpenModalLogout, setIsOpenModalLogout] = React.useState(false);
     const [isLoading, setLoading] = React.useState<boolean>(false);
+    const [isOpenModalLogout, setIsOpenModalLogout] = React.useState(false);
     const [isOpenModalInv, setIsOpenModalInv] = React.useState(false);
+    const [isOpenModalClear, setIsOpenModalClear] = React.useState(false);
     const [dataInv, setDataInv] = React.useState<TUInvitation>();
     const { logout, workspaceId, setWorkspaceId } = useAuth();
     const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace, setWorksId, isFetchingItems, cancelFetchingItems } = useModal();
@@ -69,6 +70,9 @@ export default function PageLayout(props: Props) {
 
     const openModalInv = () => setIsOpenModalInv(true);
     const closeModalInv = () => setIsOpenModalInv(false);
+
+    const openModalClear = () => setIsOpenModalClear(true);
+    const closeModalClear = () => setIsOpenModalClear(false);
 
     const { children } = props;
     const theme = useTheme();
@@ -249,6 +253,7 @@ export default function PageLayout(props: Props) {
                 setLoading(false);
                 console.log(error)
                 handleErrorResponse(error);
+                closeModalInv();
             }
         },
         [dataInv?.invitation_id, handleErrorResponse, refetch],
@@ -287,9 +292,49 @@ export default function PageLayout(props: Props) {
                 setLoading(false);
                 console.log(error)
                 handleErrorResponse(error);
+                closeModalInv();
             }
         },
         [dataInv?.invitation_id, handleErrorResponse, refetch],
+    );
+
+    const clear = useCallback(
+        async () => {
+            setLoading(true);
+            try {
+                const { data: dataN } = await axios.delete<DefaultResponse>(
+                    `users/notification`, {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }
+                );
+                if (!dataN.errno) {
+                    Swal.fire({
+                        title: "Notification Cleared",
+                        position: "top-end",
+                        showConfirmButton: false,
+                        icon: "success",
+                        toast: true,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showCloseButton: true,
+                        customClass: {
+                            container: "my-swal",
+                        },
+                    });
+                    refetch();
+                    closeModalClear();
+                }
+                setLoading(false);
+            } catch (error) {
+                setLoading(false);
+                console.log(error)
+                handleErrorResponse(error);
+                closeModalClear();
+            }
+        },
+        [handleErrorResponse, refetch],
     );
 
     React.useEffect(() => {
@@ -709,6 +754,24 @@ export default function PageLayout(props: Props) {
                             },
                         }}
                     >
+                        {dataNotifications && dataNotifications.length > 0 &&
+                            <MenuItem>
+                                <Button
+                                    fullWidth={true}
+                                    variant="contained"
+                                    onClick={() => {
+                                        openModalClear();
+                                        handleCloseN();
+                                    }}
+                                    color="error"
+                                    sx={{
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    Clear notifications
+                                </Button>
+                            </MenuItem>
+                        }
                         {dataNotifications && dataNotifications.length > 0 ? dataNotifications.map((dat, idx) =>
                         (<MenuItem key={String(idx)}
                             sx={{ borderBottom: idx === dataNotifications.length - 1 ? 0 : 1, borderColor: 'primary.main', whiteSpace: 'normal' }}
@@ -1043,7 +1106,7 @@ export default function PageLayout(props: Props) {
                         Are you sure want to logout and go back to login screen?
                     </Typography>
                 </DialogContent>
-                <DialogActions
+                <DialogActions disableSpacing
                     sx={{ paddingX: isPhoneScreen ? 2.5 : 4.5, paddingBottom: isPhoneScreen ? 2.5 : 4.5, paddingTop: 3, flexDirection: isPhoneScreen ? 'column' : 'row' }}
                 >
                     {isPhoneScreen &&
@@ -1070,6 +1133,85 @@ export default function PageLayout(props: Props) {
                         }}
                     >
                         Logout
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog
+                maxWidth="xs"
+                fullWidth={true}
+                fullScreen={isPhoneScreen}
+                open={isOpenModalClear}
+                onClose={closeModalClear}
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                        maxWidth: "960px",
+                    },
+                }}
+            >
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    padding={isPhoneScreen ? 2.5 : 4.5}
+                >
+                    <DialogTitle
+                        sx={{ padding: 0 }}
+                        fontSize={32}
+                        fontWeight={700}
+                    >
+                        Clear Notifications
+                    </DialogTitle>
+                    {!isPhoneScreen &&
+                        <IconButton
+                            aria-label="close"
+                            onClick={closeModalClear}
+                            sx={{
+                                color: (theme) => theme.palette.grey[500],
+                            }}
+                        >
+                            <CloseIcon />
+                        </IconButton>}
+                </Stack>
+                <DialogContent
+                    sx={{
+                        borderTop:
+                            "1px solid var(--text-primary-thin, #A8B4AF)",
+                        paddingTop: isPhoneScreen ? 2.5 : 4.5,
+                        paddingX: isPhoneScreen ? 2.5 : 4.5,
+                    }}
+                >
+                    <Typography>
+                        Are you sure want to clear all notifications that you have right now?
+                    </Typography>
+                </DialogContent>
+                <DialogActions disableSpacing
+                    sx={{ paddingX: isPhoneScreen ? 2.5 : 4.5, paddingBottom: isPhoneScreen ? 2.5 : 4.5, paddingTop: 3, flexDirection: isPhoneScreen ? 'column' : 'row' }}
+                >
+                    {isPhoneScreen &&
+                        <Button
+                            fullWidth={isPhoneScreen}
+                            variant="outlined"
+                            onClick={closeModalClear}
+                            color="primary"
+                            sx={{
+                                fontWeight: "bold",
+                            }}
+                        >
+                            Cancel
+                        </Button>}
+                    <Button
+                        fullWidth={isPhoneScreen}
+                        variant="contained"
+                        onClick={clear}
+                        color="error"
+                        sx={{
+                            fontWeight: "bold",
+                            marginLeft: isPhoneScreen ? 0 : 16,
+                            marginTop: isPhoneScreen ? 2 : 0,
+                        }}
+                    >
+                        Clear Notifications
                     </Button>
                 </DialogActions>
             </Dialog>
