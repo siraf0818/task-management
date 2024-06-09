@@ -196,7 +196,7 @@ const Member: NextPage = () => {
                       onClick={() => console.log(dat.user_id)} sx={{ fontSize: 12, height: 35 }} variant="outlined" color="error" startIcon={
                         <CloseIcon sx={{ height: 16, width: 16 }}
                         />}>
-                      Remove
+                      {dat.role_name === "owner" ? 'Leave' : 'Remove'}
                     </Button>
                   </Stack>
                 })}

@@ -7,9 +7,9 @@ import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import PrivateRoute from "@/routes/PrivateRoute";
-import { Avatar, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton } from "@mui/material";
+import { Autocomplete, Avatar, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, TextField } from "@mui/material";
 import avatarAlt from "@/utils/avatarAlt";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import defaultAxios, { AxiosError } from "axios";
 import Swal from "sweetalert2";
 import { useModal } from "@/context/modalContext";
@@ -22,10 +22,34 @@ import useWorkspaceDetail from "@/services/queries/useWorkspaceDetail";
 import CloseIcon from '@mui/icons-material/Close';
 import Icon from '@mdi/react';
 import { mdiPencil } from "@mdi/js";
-import { DefaultResponse } from "@/constants/types";
+import { DefaultResponse, TWType } from "@/constants/types";
 import axios from "@/services/axios";
 import { LoadingButton } from "@mui/lab";
 import { useRouter } from "next/navigation";
+import * as yup from "yup";
+import useWorkspaceTypes from "@/services/queries/useWorkspaceTypes";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+interface IUpdateWorkspace {
+  name: string;
+  type_id: TWType;
+  description?: string;
+}
+
+const schemaUpdateWorkspace = yup
+  .object({
+    name: yup
+      .string()
+      .required("Required"),
+    type_id: yup.object().shape({
+      id: yup.number().required("Required"),
+      name: yup.string().required("Required"),
+    }).required("Required"),
+    description: yup
+      .string(),
+  })
+  .required();
 
 const Member: NextPage = () => {
   const [isOpenModalDelete, setIsOpenModalDelete] = React.useState(false);
@@ -39,6 +63,7 @@ const Member: NextPage = () => {
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspaceDetail(workspaceId);
   const openModalDelete = () => setIsOpenModalDelete(true);
   const closeModalDelete = () => setIsOpenModalDelete(false);
+  const { data: dataWTypes } = useWorkspaceTypes();
 
   const handleErrorResponse = useCallback((error: any) => {
     if (defaultAxios.isAxiosError(error)) {
@@ -109,6 +134,86 @@ const Member: NextPage = () => {
     [handleErrorResponse, refetchWorkspace],
   );
 
+  const initialValuesUpdateWorkspace = React.useMemo(
+    () => ({
+      name: dataWorkspace?.workspace_name,
+      type_id: { id: dataWorkspace?.type_id, name: dataWorkspace?.type_name },
+      description: dataWorkspace?.description,
+    }),
+    [dataWorkspace?.description, dataWorkspace?.type_id, dataWorkspace?.type_name, dataWorkspace?.workspace_name],
+  );
+
+  const {
+    handleSubmit: handleSubmitUpdateWorkspace,
+    formState: { errors: errorsUpdateWorkspace },
+    control: controlUpdateWorkspace,
+    reset: resetUpdateWorkspace,
+  } = useForm<IUpdateWorkspace>({
+    resolver: yupResolver(schemaUpdateWorkspace),
+    defaultValues: initialValuesUpdateWorkspace,
+  });
+
+  const updateWorkspace = useCallback(
+    async (values: IUpdateWorkspace) => {
+      setLoading(true);
+      try {
+        const { data: dataN } = await axios.put<DefaultResponse>(
+          `workspace/${dataWorkspace?.id}/name`, {
+          name: values.name,
+        }, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        }
+        );
+        const { data: dataT } = await axios.put<DefaultResponse>(
+          `workspace/${dataWorkspace?.id}/type`, {
+          type_id: values.type_id.id,
+        }, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        }
+        );
+        const { data: dataD } = await axios.put<DefaultResponse>(
+          `workspace/${dataWorkspace?.id}/description`, {
+          description: values.description,
+        }, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        }
+        );
+        if (!dataN.errno || !dataT.errno || !dataD.errno) {
+          Swal.fire({
+            title: "Workspace Updated",
+            position: "top-end",
+            showConfirmButton: false,
+            icon: "success",
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            showCloseButton: true,
+            customClass: {
+              container: "my-swal",
+            },
+          });
+          refetch();
+        }
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.log(error)
+        handleErrorResponse(error);
+      }
+    },
+    [dataWorkspace?.id, handleErrorResponse, refetch],
+  );
+
+  const onSubmitUpdateWorkspace = (data: IUpdateWorkspace) => {
+    updateWorkspace(data);
+  };
+
   const deleteWorkpsace = useCallback(
     async () => {
       setLoading(true);
@@ -146,6 +251,12 @@ const Member: NextPage = () => {
     },
     [Router, handleErrorResponse, workspaceId],
   );
+
+  useEffect(() => {
+    if (dataWorkspace) {
+      resetUpdateWorkspace(initialValuesUpdateWorkspace);
+    }
+  }, [dataWorkspace, initialValuesUpdateWorkspace, resetUpdateWorkspace]);
 
   return (
     <PrivateRoute>
@@ -192,21 +303,122 @@ const Member: NextPage = () => {
               </Stack>
             </Grid>
           }
-          {isEdit &&
-            <Grid item xs={12} mb={4}>
-              <Stack flexDirection={'row'} alignItems={'center'} gap={0.5} marginBottom={2} >
-                <PeopleOutlineIcon sx={{ height: 32, width: 32 }}
+          <Grid item xs={12} mb={4}>
+            <Stack flexDirection={"column"} gap={1.5}>
+              <Stack flexDirection={"column"} gap={0.5}>
+                <Typography
+                  fontWeight={500}
+
+                >
+                  Workspace name
+                </Typography>
+                <Controller
+                  control={controlUpdateWorkspace}
+                  name="name"
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      id="name"
+                      size="medium"
+                      error={Boolean(errorsUpdateWorkspace.name)}
+                      helperText={
+                        errorsUpdateWorkspace.name
+                          ? errorsUpdateWorkspace.name.message
+                          : ""
+                      }
+                    />
+                  )}
                 />
               </Stack>
-              <Box
-                display="grid"
-                // gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-                gap={1}
-              >
+              <Stack flexDirection={"column"} gap={0.5}>
+                <Typography
+                  fontWeight={500}
 
-              </Box>
-            </Grid>
-          }
+                >
+                  Workspace type
+                </Typography>
+                <Controller
+                  control={controlUpdateWorkspace}
+                  name="type_id"
+                  render={({
+                    field: { onChange, value },
+                  }) => (
+                    <Autocomplete
+                      fullWidth
+                      size="medium"
+                      disablePortal
+                      value={value}
+                      id="type_id"
+                      options={dataWTypes ?? []}
+                      onChange={(_event, newType: any,) => {
+                        onChange(newType);
+                      }}
+                      getOptionLabel={(option) => option.name}
+                      renderInput={(params) => <TextField {...params}
+                        error={Boolean(errorsUpdateWorkspace.type_id)}
+                        helperText={
+                          errorsUpdateWorkspace.type_id && errorsUpdateWorkspace.type_id.id
+                            ? errorsUpdateWorkspace.type_id.id.message
+                            : ""
+                        } />
+                      }
+                    />
+                  )}
+                />
+              </Stack>
+              <Stack flexDirection={"column"} gap={0.5}>
+                <Typography
+                  fontWeight={500}
+
+                >
+                  Workspace description{" "}
+                  <Typography
+                    fontWeight={500}
+                    display={"inline"}
+                    color="#7C8883"
+                  >
+                    (optional)
+                  </Typography>
+                </Typography>
+                <Controller
+                  control={controlUpdateWorkspace}
+                  name="description"
+                  render={({ field }) => (
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={5}
+                      size="medium"
+                      id="description"
+                      error={Boolean(errorsUpdateWorkspace.description)}
+                      helperText={
+                        errorsUpdateWorkspace.description
+                          ? errorsUpdateWorkspace.description.message
+                          : ""
+                      }
+                      {...field}
+                    />)}
+                />
+              </Stack>
+              <LoadingButton
+                loading={isLoading}
+                onClick={handleSubmitUpdateWorkspace(onSubmitUpdateWorkspace)}
+                size="small"
+                fullWidth={isPhoneScreen}
+                variant="contained"
+                type="submit"
+                color="buttongreen"
+                sx={{
+                  fontWeight: "bold",
+                  marginTop: isPhoneScreen ? 2 : 0,
+                  py: 1,
+                  px: 2,
+                }}
+              >
+                Save
+              </LoadingButton>
+            </Stack>
+          </Grid>
           <Button
             onClick={openModalDelete} sx={{ fontSize: 12, px: 1, py: 1, fontWeight: '700' }} variant="text" color="buttonred">
             Delete This Wokrspace ?
