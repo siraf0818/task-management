@@ -81,6 +81,7 @@ export type DefaultResponse = {
   errno: number;
   message: string;
   insertId: number;
+  boardId: number;
 };
 
 export type UserResponse = {
@@ -209,3 +210,30 @@ export type TNotif = {
 };
 
 export type GetNotificationsResponse = TNotif[];
+
+export type TBoard = {
+  id: number;
+  owner_id: number;
+  board_title: string;
+  background: string;
+  visibility_id: number | null;
+  workspace_id: number;
+  owner_username: string;
+  visibility_name: string;
+  background_name: string | null;
+  workspace_name: string;
+  is_starred: number;
+};
+
+export type GetBoardResponse = TBoard[];
+
+export type TBCollaborator = {
+  collaborator_id: number;
+  user_id: number;
+  user_username: string;
+  user_email: string;
+  privilege_id: number;
+  privilege_name: string;
+};
+
+export type GetBoardCollaboratorsResponse = TBCollaborator[];

@@ -367,11 +367,13 @@ const Member: NextPage = () => {
                   />
                 </Stack>
                 <Stack flexDirection={"column"} gap={0.5}>
-                  <Typography
-                    fontWeight={500}
+                  <Stack flexDirection={'row'} gap={0.5}>
+                    <Typography
+                      fontWeight={500}
 
-                  >
-                    Workspace description{" "}
+                    >
+                      Workspace description
+                    </Typography>
                     <Typography
                       fontWeight={500}
                       display={"inline"}
@@ -379,7 +381,7 @@ const Member: NextPage = () => {
                     >
                       (optional)
                     </Typography>
-                  </Typography>
+                  </Stack>
                   <Controller
                     control={controlUpdateWorkspace}
                     name="description"
@@ -421,7 +423,7 @@ const Member: NextPage = () => {
             </Grid>
             <Button
               onClick={openModalDelete} sx={{ fontSize: 12, px: 1, py: 1, fontWeight: '700' }} variant="text" color="buttonred">
-              Delete This Wokrspace ?
+              Delete This Wokrspace?
             </Button>
           </>}
 

@@ -113,7 +113,7 @@ const ModalProvider = ({ children }: IModalContext) => {
     const theme = useTheme();
     const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
     const Router = useRouter();
-    const { setWorkspaceId } = useAuth();
+    const { setWorkspaceId, setBoardId } = useAuth();
 
     const [worksId, setWorksId] = useState<number>();
     const [isFetchingItems, setIsFetchingItems] = useState(false);
@@ -416,7 +416,8 @@ const ModalProvider = ({ children }: IModalContext) => {
                         },
                     });
                     setWorkspaceId(values.workspace.id);
-                    Router.push("/home/boards");
+                    setBoardId(data.boardId);
+                    Router.push("/home/lists");
                     setWorksId(undefined);
                     resetCreateBoard();
                     setFetchingItems();
@@ -429,7 +430,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                 handleErrorResponse(error);
             }
         },
-        [Router, closeModalBoard, handleErrorResponse, resetCreateBoard, setFetchingItems, setWorkspaceId],
+        [Router, closeModalBoard, handleErrorResponse, resetCreateBoard, setBoardId, setFetchingItems, setWorkspaceId],
     );
 
     const onSubmitCreateBoard = (data: ICreateBoard) => {

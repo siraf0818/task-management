@@ -472,7 +472,7 @@ export default function PageLayout(props: Props) {
                                         component={Link}
                                         href="/home/boards"
                                         selected={
-                                            pathName === "/home/boards" && workspaceId === dat.workspace_id
+                                            (pathName === "/home/boards" || pathName === "/home/lists") && workspaceId === dat.workspace_id
                                         }
                                         sx={{
                                             borderRadius: 2,
@@ -490,7 +490,7 @@ export default function PageLayout(props: Props) {
                                                 width: 24,
                                                 height: 24,
                                                 color:
-                                                    pathName === "/home/boards" && workspaceId === dat.workspace_id
+                                                    (pathName === "/home/boards" || pathName === "/home/lists") && workspaceId === dat.workspace_id
                                                         ? "secondary.main"
                                                         : "#7C8883",
                                             }}
@@ -1053,9 +1053,9 @@ export default function PageLayout(props: Props) {
                 </Drawer>
             </Box>
             <Box component="main" sx={{ flexGrow: 1 }}>
-                <Container disableGutters maxWidth="xl">
-                    {children}
-                </Container>
+                {/* <Container disableGutters sx={{ marginX: 0 }} maxWidth={'xl'}> */}
+                {children}
+                {/* </Container> */}
             </Box>
             <Dialog
                 maxWidth="xs"

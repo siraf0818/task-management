@@ -54,7 +54,7 @@ const Member: NextPage = () => {
         if (serverError.response!.status === 400) {
           Swal.fire({
             title: "Something's Wrong!",
-            text: `${serverError.response.data.data.errors.message}`,
+            text: `${serverError.response.data.error}`,
             icon: "error",
             confirmButtonColor: "primary",
             customClass: {
@@ -250,7 +250,7 @@ const Member: NextPage = () => {
                     </Stack>
                     {(dataWorkspace?.user_role_on_workspace === "owner" || dat.user_id === dataUser?.user_id) &&
                       <Button
-                        onClick={() => { setId(dat.user_id); setIdKick(dat.membership_id); setName(dat.user_username); setRole(dat.role_name); openModalLeave(); }} sx={{ fontSize: 12, height: 35 }} variant="outlined" color="error" startIcon={
+                        onClick={() => { setId(dat.user_id); setIdKick(dat.membership_id); setName(dat.user_username); setRole(dat.role_name); openModalLeave(); }} sx={{ fontSize: 12, height: 35 }} variant="contained" color="error" startIcon={
                           <CloseIcon sx={{ height: 16, width: 16 }}
                           />}>
                         {(dat.role_name === "owner" || dat.user_id === dataUser?.user_id) ? 'Leave' : 'Remove'}

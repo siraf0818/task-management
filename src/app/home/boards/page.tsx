@@ -19,10 +19,12 @@ import useWorkspaceBoards from "@/services/queries/useWorkspaceBoards";
 import { useAuth } from "@/context/authContext";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import useWorkspaceDetail from "@/services/queries/useWorkspaceDetail";
+import { useRouter } from "next/navigation";
 
 const Board: NextPage = () => {
   const theme = useTheme();
-  const { workspaceId } = useAuth();
+  const Router = useRouter();
+  const { workspaceId, setBoardId, setWorkspaceId } = useAuth();
   const { setIsOpenModalBoard, isFetchingItems, cancelFetchingItems, setWorksId } = useModal();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspaceDetail(workspaceId);
   const { data: dataBoards, refetch: refetchBoards } = useWorkspaceBoards(workspaceId);
@@ -160,7 +162,10 @@ const Board: NextPage = () => {
                 gap={1}
               >
                 {dataBoards && dataBoards.map((dat, idx) => {
-                  return <CardBoard key={String(idx)} id={dat.board_id} namaCard={dat.board_title} refetch={refetch} isFavorite={Boolean(dat.is_starred)} />
+                  return <CardBoard click={() => {
+                    setBoardId(dat.board_id); setWorkspaceId(dat.workspace_id);
+                    Router.push("/home/lists");
+                  }} key={String(idx)} id={dat.board_id} namaCard={dat.board_title} refetch={refetch} isFavorite={Boolean(dat.is_starred)} />
                 })}
                 <CardCreateBoard namaCard={"Create new board"} create={() => { setIsOpenModalBoard(true); setWorksId(workspaceId) }} />
               </Box>

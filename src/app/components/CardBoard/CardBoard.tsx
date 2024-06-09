@@ -1,18 +1,19 @@
-import { Card, Box, Typography, Stack, CardHeader, CardActions, IconButton, CardActionArea } from "@mui/material";
+import { Card, Stack, CardHeader, CardActions, IconButton, CardActionArea } from "@mui/material";
 import React, { useCallback } from "react";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import defaultAxios, { AxiosError } from "axios";
 import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import Swal from "sweetalert2";
-import { useQueryClient } from "react-query";
 import axios from "@/services/axios";
 import { StarredResponse } from "@/constants/types";
+import { useAuth } from "@/context/authContext";
 
 interface ICardBoardProps {
     id: number;
     namaCard: string;
     isFavorite: boolean;
     refetch?: () => void;
+    click: () => void;
 }
 
 const CardBoard = ({
@@ -20,6 +21,7 @@ const CardBoard = ({
     namaCard,
     isFavorite,
     refetch,
+    click,
 }: ICardBoardProps) => {
     const handleErrorResponse = useCallback((error: any) => {
         if (defaultAxios.isAxiosError(error)) {
@@ -112,7 +114,7 @@ const CardBoard = ({
                 }
             }
         },
-        [handleErrorResponse, id, isFavorite],
+        [handleErrorResponse, id, isFavorite, refetch],
     );
 
     return (
@@ -124,8 +126,7 @@ const CardBoard = ({
                 minWidth: 200,
             }}
         >
-            <CardActionArea component="a"
-                href="/"  >
+            <CardActionArea onClick={click}>
                 <CardHeader
                     color="white"
                     title={namaCard}

@@ -25,12 +25,14 @@ import CardBoard from "@/app/components/CardBoard/CardBoard";
 import CardCreateBoard from "@/app/components/CardCreateBoard/CardCreateBoard";
 import { useAuth } from "@/context/authContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Home: NextPage = () => {
   const theme = useTheme();
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
   const { setIsOpenModalBoard, isFetchingItems, cancelFetchingItems, setWorksId } = useModal();
-  const { setWorkspaceId } = useAuth();
+  const Router = useRouter();
+  const { setWorkspaceId, setBoardId } = useAuth();
   const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspace();
   const { data: dataBoards, refetch: refetchBoards } = useRecentBoards();
   const { data: dataStarred, refetch: refetchStarred } = useStarredBoards();
@@ -139,7 +141,10 @@ const Home: NextPage = () => {
                 gap={1}
               >
                 {dataStarred && dataStarred.map((dat, idx) => {
-                  return <CardBoard key={String(idx)} id={dat.board_id} namaCard={dat.board_title} refetch={refetch} isFavorite={true} />
+                  return <CardBoard click={() => {
+                    setBoardId(dat.board_id); setWorkspaceId(dat.workspace_id);
+                    Router.push("/home/lists");
+                  }} key={String(idx)} id={dat.board_id} namaCard={dat.board_title} refetch={refetch} isFavorite={true} />
                 })}
               </Box>
             </Grid>
@@ -159,7 +164,10 @@ const Home: NextPage = () => {
                 gap={1}
               >
                 {dataBoards && dataBoards.map((dat, idx) => {
-                  return <CardBoard key={String(idx)} id={dat.board_id} namaCard={dat.board_title} refetch={refetch} isFavorite={Boolean(dat.is_starred)} />
+                  return <CardBoard click={() => {
+                    setBoardId(dat.board_id); setWorkspaceId(dat.workspace_id);
+                    Router.push("/home/lists");
+                  }} key={String(idx)} id={dat.board_id} namaCard={dat.board_title} refetch={refetch} isFavorite={Boolean(dat.is_starred)} />
                 })}
               </Box>
             </Grid>
@@ -235,7 +243,10 @@ const Home: NextPage = () => {
                       gap={1}
                     >
                       {dat.recent_boards.map((dats, idx) => {
-                        return <CardBoard key={String(idx)} id={dats.id} namaCard={dats.board_title} refetch={refetch} isFavorite={Boolean(dats.is_starred)} />
+                        return <CardBoard click={() => {
+                          setBoardId(dats.id); setWorkspaceId(dats.workspace_id);
+                          Router.push("/home/lists");
+                        }} key={String(idx)} id={dats.id} namaCard={dats.board_title} refetch={refetch} isFavorite={Boolean(dats.is_starred)} />
                       })}
                       <CardCreateBoard namaCard={"Create new board"} create={() => { setIsOpenModalBoard(true); setWorksId(dat.workspace_id) }} />
                     </Box>
