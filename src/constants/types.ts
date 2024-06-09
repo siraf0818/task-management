@@ -159,7 +159,6 @@ export type GetWorkspaceBoardsResponse = {
   is_starred: number;
 }[];
 
-<<<<<<< Updated upstream
 export type GetWorkspaceMembersResponse = {
   membership_id: number;
   user_id: number;
@@ -238,34 +237,33 @@ export type TBCollaborator = {
 };
 
 export type GetBoardCollaboratorsResponse = TBCollaborator[];
-=======
+
 export type GetStarredBoardsResponse = {
-  "board_id": 11,
-  "board_title": "Mabar Kita",
-  "workspace_id": 12,
-  "workspace_name": "test"
+  board_id: number,
+  board_title: string,
+  workspace_id: number,
+  workspace_name: string
 }[];
 
 export type GetBoardsCollaboratorResponse = {
-  "collaborator_id": 8,
-  "user_id": 2,
-  "user_username": "baguswijaksonogg",
-  "user_email": "contoh2@skibidi.com",
-  "privilege_id": 3,
-  "privilege_name": "delete",
-  "collaborator_created_at": "2024-06-03T10:17:20.000Z",
-  "collaborator_updated_at": "2024-06-03T10:17:20.000Z"
+  collaborator_id: number,
+  user_id: number,
+  user_username: string,
+  user_email: string,
+  privilege_id: number,
+  privilege_name: string,
+  collaborator_created_at: string,
+  collaborator_updated_at: string
 }[];
 
 export type GetWorkspaceInvitationResponse = {
-  "invitation_id": 7,
-  "inviter_user_id": 2,
-  "inviter_user_name": "baguswijaksonogg",
-  "workspace_id": 11,
-  "workspace_name": "Bagus Workspace Update",
-  "type_id": 7,
-  "workspace_type": "Other",
-  "invitation_created_at": "2024-06-03T11:32:47.000Z",
-  "invitation_updated_at": "2024-06-03T11:32:47.000Z"
+  invitation_id: number,
+  inviter_user_id: number,
+  inviter_user_name: string,
+  workspace_id: number,
+  workspace_name: string,
+  type_id: number,
+  workspace_type: string,
+  invitation_created_at: string,
+  invitation_updated_at: string
 }[];
->>>>>>> Stashed changes
