@@ -309,7 +309,7 @@ const Member: NextPage = () => {
             }}
           >
             <Typography>
-              Are you sure want to
+              Are you sure you want to
               {(role === "owner" || id === dataUser?.user_id) ? " leave" : ` remove ${name}`} from this workspace?
             </Typography>
           </DialogContent>

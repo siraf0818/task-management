@@ -124,7 +124,7 @@ const Home: NextPage = () => {
           alignItems="center"
           padding={2}
         >
-          {dataStarred &&
+          {dataStarred && dataStarred.length > 0 &&
             <Grid item xs={12} mb={4}>
               <Stack flexDirection={'row'} alignItems={'center'} gap={0.5} marginBottom={0.5} >
                 <FavoriteBorderIcon sx={{ height: 24, width: 24 }}
@@ -144,7 +144,7 @@ const Home: NextPage = () => {
               </Box>
             </Grid>
           }
-          {dataBoards &&
+          {dataBoards && dataBoards.length > 0 &&
             <Grid item xs={12} mb={4}>
               <Stack flexDirection={'row'} alignItems={'center'} gap={0.5} marginBottom={0.5} >
                 <AccessTimeIcon sx={{ height: 24, width: 24 }}

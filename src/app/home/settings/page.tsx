@@ -310,7 +310,6 @@ const Member: NextPage = () => {
                 <Stack flexDirection={"column"} gap={0.5}>
                   <Typography
                     fontWeight={500}
-
                   >
                     Workspace name
                   </Typography>
@@ -335,7 +334,6 @@ const Member: NextPage = () => {
                 <Stack flexDirection={"column"} gap={0.5}>
                   <Typography
                     fontWeight={500}
-
                   >
                     Workspace type
                   </Typography>
@@ -474,7 +472,7 @@ const Member: NextPage = () => {
             }}
           >
             <Typography>
-              Are you sure want to delete this workspace permanently?
+              Are you sure you want to delete this workspace permanently?
             </Typography>
           </DialogContent>
           <DialogActions
@@ -491,7 +489,8 @@ const Member: NextPage = () => {
                 }}
               >
                 Cancel
-              </Button>}
+              </Button>
+            }
             <LoadingButton
               loading={isLoading}
               fullWidth={isPhoneScreen}

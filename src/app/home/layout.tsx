@@ -1103,7 +1103,7 @@ export default function PageLayout(props: Props) {
                     }}
                 >
                     <Typography>
-                        Are you sure want to logout and go back to login screen?
+                        Are you sure you want to logout and go back to login screen?
                     </Typography>
                 </DialogContent>
                 <DialogActions disableSpacing
@@ -1182,7 +1182,7 @@ export default function PageLayout(props: Props) {
                     }}
                 >
                     <Typography>
-                        Are you sure want to clear all notifications that you have right now?
+                        Are you sure you want to clear all notifications that you have right now?
                     </Typography>
                 </DialogContent>
                 <DialogActions disableSpacing
