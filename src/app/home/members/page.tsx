@@ -215,11 +215,10 @@ const Member: NextPage = () => {
               </Stack>
               <Box
                 display="grid"
-                // gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-                gap={1}
+
               >
                 {dataMembers && dataMembers.map((dat, idx) => {
-                  return <Stack key={idx} p={1.5} flexDirection={'row'} flex={1} borderTop={1} borderBottom={1} borderColor={'secondary.main'} justifyContent={'space-between'} alignItems={'center'}>
+                  return <Stack key={idx} p={1.5} flexDirection={'row'} flex={1} borderBottom={1} borderColor={'secondary.main'} justifyContent={'space-between'} alignItems={'center'}>
                     <Stack gap={1} flexDirection={'row'}>
                       <Avatar
                         sx={{
