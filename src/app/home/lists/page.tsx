@@ -32,19 +32,28 @@ import useWorkspaceMembers from "@/services/queries/useWorkspaceMembers";
 import CloseIcon from "@mui/icons-material/Close";
 import { LoadingButton } from "@mui/lab";
 import useUserData from "@/services/queries/useUserData";
+import useBoardList from "@/services/queries/useBoardList";
+import CardList from "@/app/components/CardList/CardList";
+import { mdiPlus } from '@mdi/js';
+import Icon from "@mdi/react";
 
 const Board: NextPage = () => {
   const theme = useTheme();
+  const isLaptopScreen = useMediaQuery(theme.breakpoints.up("lg"));
   const { workspaceId, boardId } = useAuth();
   const { isFetchingItems, cancelFetchingItems } = useModal();
   const { data: dataBoard, refetch: refetchBoard } = useBoard(boardId);
   const { data: dataBoardCollab, refetch: refetchBoardCollab } = useBoardCollaborators(boardId);
+  const { data: dataBoardList, refetch: refetchBoardList } = useBoardList(boardId);
   const isPhoneScreen = useMediaQuery(theme.breakpoints.between("xs", "sm"));
   const [isLoading, setLoading] = useState<boolean>(false);
   const [idUser, setIdUser] = useState<number>();
   const [idPriv, setIdPriv] = useState<number>();
   const [title, setTitle] = useState<string>();
+  const [titleList, setTitleList] = useState<string>();
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditingList, setIsEditingList] = useState<boolean>(false);
+  const [isNewList, setIsNewList] = useState<boolean>(false);
   const { data: dataMembers, refetch: refetchMembers } = useWorkspaceMembers(workspaceId);
   const { data: dataUser } = useUserData();
   const [isOpenModalUser, setIsOpenModalUser] = useState(false);
@@ -76,6 +85,10 @@ const Board: NextPage = () => {
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
+  };
+
+  const handleChangeList = (event: ChangeEvent<HTMLInputElement>) => {
+    setTitleList(event.target.value);
   };
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -144,13 +157,14 @@ const Board: NextPage = () => {
       try {
         refetchBoard();
         refetchBoardCollab();
+        refetchBoardList();
         refetchMembers();
       } catch (error) {
         console.log(error)
         handleErrorResponse(error);
       }
     },
-    [handleErrorResponse, refetchBoard, refetchBoardCollab, refetchMembers],
+    [handleErrorResponse, refetchBoard, refetchBoardCollab, refetchBoardList, refetchMembers],
   );
 
   const star = useCallback(
@@ -259,6 +273,34 @@ const Board: NextPage = () => {
     [boardId, dataBoard, handleErrorResponse, refetch, title],
   );
 
+  const newList = useCallback(
+    async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.post<DefaultResponse>(
+          `boards/${boardId}/list`, {
+          title: titleList,
+        }, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        }
+        );
+        if (!data.errno) {
+          refetch();
+        }
+        setLoading(false);
+        setIsNewList(false);
+        setTitleList(undefined);
+      } catch (error) {
+        setLoading(false);
+        console.log(error)
+        handleErrorResponse(error);
+      }
+    },
+    [boardId, handleErrorResponse, refetch, titleList],
+  );
+
   React.useEffect(() => {
     if (isFetchingItems) {
       refetch();
@@ -274,11 +316,11 @@ const Board: NextPage = () => {
 
   return (
     <PrivateRoute>
-      <Grid
+      <Grid container
         alignItems="center"
       >
         {dataBoard &&
-          <Grid item xs={12} mb={0.5} py={1} px={isPhoneScreen ? 2 : 3} bgcolor={'primary.main'}>
+          <Grid item xs={12} mb={0.5} py={1} px={isPhoneScreen ? 2 : 3} bgcolor={'primary.main'} >
             <Stack flexDirection={'row'} justifyContent={'space-between'}>
               <Stack flexDirection={'row'} gap={1} alignItems={"center"}>
                 {isEditing ? (
@@ -451,6 +493,61 @@ const Board: NextPage = () => {
             </Stack>
           </Grid>
         }
+        <Stack flex={1} flexDirection={'row'} sx={{
+          display: 'flex',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+          width: `50vw`,
+          height: "80vh",
+        }} alignItems={"flex-start"} p={2}>
+          <Stack gap={1.5} flexDirection={'row'}>
+            {dataBoardList && dataBoardList.map((dat, idx) =>
+              <CardList key={String(idx)} id={dat.id} refetch={refetch} namaCard={dat.title} click={() => console.log('pressed')} />
+            )}
+            {isNewList ?
+              <Box
+                sx={{
+                  backgroundColor: 'primary.main',
+                  borderRadius: 2,
+                  width: 200,
+                  padding: 2,
+                  height: '100%'
+                }}
+              >
+                <Stack gap={1} >
+                  <TextField
+                    value={titleList}
+                    onChange={handleChangeList}
+                    autoFocus
+                    inputProps={{ style: { padding: 10, backgroundColor: 'white', borderRadius: 8 } }}
+                    sx={{
+                      '& .MuiInputBase-input': {
+                        fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+                        padding: 0,
+                        border: 0,
+                      },
+                    }}
+                  />
+                  <Stack gap={0.5} flexDirection={'row'} justifyContent={"space-between"}>
+                    <Button fullWidth
+                      onClick={newList} sx={{ fontSize: 14, height: 35, mt: 0.5 }} variant="contained" color="buttongreen">
+                      Add list
+                    </Button>
+                    <Button fullWidth
+                      onClick={() => { setIsNewList(false); setTitleList(undefined) }} sx={{ fontSize: 14, height: 35, mt: 0.5 }} variant="contained" color="error">
+                      Close
+                    </Button>
+                  </Stack>
+                </Stack>
+              </Box> :
+              <Button
+                onClick={() => setIsNewList(true)} sx={{ fontSize: 12, height: 35, minWidth: 200, }} variant="contained" color="secondary" startIcon={
+                  <Icon path={mdiPlus} size={1} />
+                }>
+                Add list
+              </Button>}
+          </Stack>
+        </Stack>
         <Dialog
           maxWidth="xs"
           fullWidth={true}
