@@ -502,7 +502,7 @@ const Board: NextPage = () => {
         }} alignItems={"flex-start"} p={2}>
           <Stack gap={1.5} flexDirection={'row'}>
             {dataBoardList && dataBoardList.map((dat, idx) =>
-              <CardList key={String(idx)} id={dat.id} refetch={refetch} namaCard={dat.title} click={() => console.log('pressed')} />
+              <CardList namaList={dat.title} key={String(idx)} id={dat.id} refetch={refetch} namaCard={dat.title} click={() => console.log('pressed')} />
             )}
             {isNewList ?
               <Box

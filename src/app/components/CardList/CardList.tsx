@@ -16,6 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 interface ICardListProps {
     id: number;
     namaCard: string;
+    namaList: string;
     refetch?: () => void;
     click: () => void;
 }
@@ -23,6 +24,7 @@ interface ICardListProps {
 const CardList = ({
     id,
     namaCard,
+    namaList,
     refetch,
     click,
 }: ICardListProps) => {
@@ -203,7 +205,7 @@ const CardList = ({
             sx={{
                 backgroundColor: 'primary.main',
                 borderRadius: 2,
-                width: 200,
+                width: 256,
                 px: 1.5,
                 py: 2,
                 height: '100%'
@@ -246,7 +248,7 @@ const CardList = ({
                     maxHeight: "67vh",
                 }}>
                     {dataListCard && dataListCard.map((dat, idx) =>
-                        <CardListCard key={String(idx)} id={dat.card_id} refetch={refetch} namaCard={dat.title} click={() => console.log('pressed')} />
+                        <CardListCard namaList={namaList} desc={dat.description} key={String(idx)} id={dat.card_id} refetch={refetch} namaCard={dat.title} click={() => console.log('pressed')} />
                     )}
                 </Stack>
 

@@ -258,3 +258,83 @@ export type TLCard = {
 };
 
 export type GetListCardResponse = TLCard[];
+
+export type TCActivity = {
+  id: number;
+  user_id: number;
+  user_email: string;
+  user_username: string;
+  action_id: number;
+  action_name: string;
+  list_card_id: number;
+  detailed: string;
+  created_at: string;
+};
+
+export type GetCardActivityResponse = TCActivity[];
+
+export type TCLabel = {
+  label_id: number;
+  list_card_id: number;
+  color: string;
+  label_title: string;
+  adder_username: string;
+};
+
+export type GetCardLabelResponse = TCLabel[];
+
+export type TCDate = {
+  adder_username: string;
+  adder_email: string;
+  adder_id: number;
+  deadline: string;
+};
+
+export type GetCardDateResponse = TCDate[];
+
+export type TCCover = {
+  id: number;
+  list_card_id: number;
+  cover: string;
+  adder_id: number;
+  username: string;
+  email: string;
+};
+
+export type GetCardCoverResponse = TCCover[];
+
+export type TCComment = {
+  comment_id: number;
+  list_card_id: number;
+  comment: string;
+  user_id: number;
+  email: string;
+  username: string;
+};
+
+export type GetCardCommentResponse = TCComment[];
+
+export type TCMember = {
+  member_id: number;
+  list_card_id: number;
+  user_id: number;
+  member_username: string;
+  member_email: string;
+  adder_id: number;
+  adder_username: string;
+  adder_email: string;
+};
+
+export type GetCardMemberResponse = TCMember[];
+
+export type TCChecklist = {
+  checklist_id: number;
+  list_card_id: number;
+  checklist_title: string;
+  status_id: number;
+  status_name: string;
+  adder_id: number;
+  adder_username: string;
+};
+
+export type GetCardChecklistResponse = TCChecklist[];
