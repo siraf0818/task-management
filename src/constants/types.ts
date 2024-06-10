@@ -252,8 +252,6 @@ export type GetBoardsCollaboratorResponse = {
   user_email: string,
   privilege_id: number,
   privilege_name: string,
-  collaborator_created_at: string,
-  collaborator_updated_at: string
 }[];
 
 export type GetWorkspaceInvitationResponse = {
@@ -264,6 +262,14 @@ export type GetWorkspaceInvitationResponse = {
   workspace_name: string,
   type_id: number,
   workspace_type: string,
-  invitation_created_at: string,
-  invitation_updated_at: string
+}[];
+
+export type GetAllUserWorkspaceInviteResponse = {
+  invitation_id: number,
+  inviter_user_id: number,
+  inviter_user_name: string,
+  workspace_id: number,
+  workspace_name: string,
+  type_id: number,
+  workspace_type: string,
 }[];
