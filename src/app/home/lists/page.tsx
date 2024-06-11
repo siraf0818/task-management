@@ -309,7 +309,7 @@ const Board: NextPage = () => {
   }, [cancelFetchingItems, isFetchingItems, refetch]);
 
   React.useEffect(() => {
-    if (!title && dataBoard) {
+    if (!title && dataBoard && dataBoard?.length > 0) {
       setTitle(dataBoard[0].board_title);
     }
   }, [dataBoard, title]);
@@ -319,7 +319,7 @@ const Board: NextPage = () => {
       <Grid container
         alignItems="center"
       >
-        {dataBoard &&
+        {dataBoard && dataBoard.length > 0 &&
           <Grid item xs={12} mb={0.5} py={1} px={isPhoneScreen ? 2 : 3} bgcolor={'primary.main'} >
             <Stack flexDirection={'row'} justifyContent={'space-between'}>
               <Stack flexDirection={'row'} gap={1} alignItems={"center"}>
@@ -348,7 +348,7 @@ const Board: NextPage = () => {
                     color={'white'}
                     onClick={handleTextClick}
                   >
-                    {dataBoard[0].board_title}
+                    {dataBoard[0] && dataBoard[0].board_title}
                   </Typography>
                 )}
                 {dataBoard && Boolean(dataBoard[0].is_starred) ?

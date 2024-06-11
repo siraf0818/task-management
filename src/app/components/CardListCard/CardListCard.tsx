@@ -1,4 +1,4 @@
-import { Card, Stack, CardHeader, CardActions, IconButton, CardActionArea, Typography, Box, Chip, Tooltip, AvatarGroup, Avatar, Dialog, DialogTitle, DialogContent, useMediaQuery, useTheme } from "@mui/material";
+import { Card, Stack, CardHeader, CardActions, IconButton, CardActionArea, Typography, Box, Chip, Tooltip, AvatarGroup, Avatar, Dialog, DialogTitle, DialogContent, useMediaQuery, useTheme, FormControlLabel, Checkbox } from "@mui/material";
 import React, { useCallback, useState } from "react";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import defaultAxios, { AxiosError } from "axios";
@@ -22,6 +22,7 @@ import avatarAlt from "@/utils/avatarAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import ListIcon from '@mui/icons-material/List';
+import CustomCheckbox from "../CustomCheckbox/CustomCheckbox";
 
 interface ICardListCardProps {
     id: number;
@@ -417,16 +418,35 @@ const CardListCard = ({
                                 </Typography>
                             </Stack>
                         </Stack>
-                        <Stack flexDirection={"row"} gap={1}>
-                            <CheckBoxOutlinedIcon sx={{ color: 'white' }} />
-                            <Stack gap={0.5} flex={1}>
-                                <Typography
-                                    fontWeight={600}
-                                    color={'white'}
-                                >
-                                    Checklist
-                                </Typography>
+                        <Stack gap={1.5}>
+                            <Stack flexDirection={"row"} gap={1}>
+                                <CheckBoxOutlinedIcon sx={{ color: 'white' }} />
+                                <Stack gap={0.5} flex={1}>
+                                    <Typography
+                                        fontWeight={600}
+                                        color={'white'}
+                                    >
+                                        Checklist
+                                    </Typography>
+                                </Stack>
                             </Stack>
+                            {dataCardChecklist && dataCardChecklist.length > 0 && dataCardChecklist.map((dat, idx) =>
+                                <Stack key={String(idx)} flexDirection={'row'} ml={2} gap={1}>
+                                    <CustomCheckbox
+                                        sx={{ padding: 0 }}
+                                        // onChange={handleClickAllProduct}
+                                        checked={
+                                            dat.status_id === 1 ? false : true
+                                        }
+                                    />
+                                    <Typography
+                                        fontWeight={500}
+                                        color={'white'}
+                                    >
+                                        {dat.checklist_title}
+                                    </Typography>
+                                </Stack>
+                            )}
                         </Stack>
                         <Stack gap={1.5}>
                             <Stack flexDirection={"row"} gap={1}>
@@ -457,7 +477,7 @@ const CardListCard = ({
                                         {avatarAlt(dat.user_username ?? "A")}
                                     </Avatar>
                                     <Stack gap={0.5} flex={1}>
-                                        <Stack flexDirection={'row'} gap={0.5}>
+                                        <Stack flexDirection={isPhoneScreen ? 'column' : 'row'} gap={0.5}>
                                             <Typography
                                                 fontWeight={600}
                                                 fontSize={14}
