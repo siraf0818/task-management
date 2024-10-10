@@ -225,7 +225,7 @@ export type TBoard = {
   is_starred: number;
 };
 
-export type GetBoardResponse = TBoard[];
+export type GetBoardResponse = TBoard;
 
 export type TBCollaborator = {
   collaborator_id: number;

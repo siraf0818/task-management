@@ -12,7 +12,11 @@ const handleRequest = async (id: number) => {
 };
 
 export default function useCardComment(id: number) {
-  return useQuery<GetCardCommentResponse>(["CardComment", id], () =>
-    handleRequest(id)
+  return useQuery<GetCardCommentResponse>(
+    ["CardComment", id],
+    () => handleRequest(id),
+    {
+      enabled: !!id,
+    }
   );
 }

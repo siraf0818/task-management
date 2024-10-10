@@ -12,7 +12,11 @@ const handleRequest = async (id: number) => {
 };
 
 export default function useCardDate(id: number) {
-  return useQuery<GetCardDateResponse>(["CardDate", id], () =>
-    handleRequest(id)
+  return useQuery<GetCardDateResponse>(
+    ["CardDate", id],
+    () => handleRequest(id),
+    {
+      enabled: !!id,
+    }
   );
 }

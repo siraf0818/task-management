@@ -169,10 +169,10 @@ const Board: NextPage = () => {
 
   const star = useCallback(
     async () => {
-      if (dataBoard && Boolean(dataBoard[0].is_starred)) {
+      if (dataBoard && Boolean(dataBoard.is_starred)) {
         try {
           const { data } = await axios.delete<StarredResponse>(
-            `users/star/${dataBoard[0].id}`
+            `users/star/${dataBoard.id}`
           );
           if (data) {
             refetch && refetch();
@@ -185,7 +185,7 @@ const Board: NextPage = () => {
         try {
           const { data } = await axios.post<StarredResponse>(
             "boards/star", {
-            board_id: dataBoard && dataBoard[0].id,
+            board_id: dataBoard && dataBoard.id,
           }, {
             headers: {
               "Content-Type": "application/x-www-form-urlencoded"
@@ -252,8 +252,8 @@ const Board: NextPage = () => {
       try {
         const { data } = await axios.put<DefaultResponse>(
           `boards/${boardId}`, {
-          board_title: title ?? (dataBoard && dataBoard[0].board_title),
-          visibility: id ?? (dataBoard && dataBoard[0].visibility_id),
+          board_title: title ?? (dataBoard && dataBoard.board_title),
+          visibility: id ?? (dataBoard && dataBoard.visibility_id),
         }, {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -309,8 +309,8 @@ const Board: NextPage = () => {
   }, [cancelFetchingItems, isFetchingItems, refetch]);
 
   React.useEffect(() => {
-    if (!title && dataBoard && dataBoard?.length > 0) {
-      setTitle(dataBoard[0].board_title);
+    if (!title && dataBoard) {
+      setTitle(dataBoard.board_title);
     }
   }, [dataBoard, title]);
 
@@ -319,7 +319,7 @@ const Board: NextPage = () => {
       <Grid container
         alignItems="center"
       >
-        {dataBoard && dataBoard.length > 0 &&
+        {dataBoard &&
           <Grid item xs={12} mb={0.5} py={1} px={isPhoneScreen ? 2 : 3} bgcolor={'primary.main'} >
             <Stack flexDirection={'row'} justifyContent={'space-between'}>
               <Stack flexDirection={'row'} gap={1} alignItems={"center"}>
@@ -348,10 +348,10 @@ const Board: NextPage = () => {
                     color={'white'}
                     onClick={handleTextClick}
                   >
-                    {dataBoard[0] && dataBoard[0].board_title}
+                    {dataBoard && dataBoard.board_title}
                   </Typography>
                 )}
-                {dataBoard && Boolean(dataBoard[0].is_starred) ?
+                {dataBoard && Boolean(dataBoard.is_starred) ?
                   <IconButton
                     onClick={() => {
                       star();
@@ -367,7 +367,7 @@ const Board: NextPage = () => {
                     <FavoriteOutlinedIcon color="error" />
                   </IconButton>
                 }
-                {dataBoard && dataBoard[0].visibility_id === 1 ?
+                {dataBoard && dataBoard.visibility_id === 1 ?
                   <IconButton
                     onClick={handleClickC}
                     sx={{ pl: 0 }}
@@ -502,7 +502,7 @@ const Board: NextPage = () => {
         }} alignItems={"flex-start"} p={2}>
           <Stack gap={1.5} flexDirection={'row'}>
             {dataBoardList && dataBoardList.map((dat, idx) =>
-              <CardList namaList={dat.title} key={String(idx)} id={dat.id} refetch={refetch} namaCard={dat.title} click={() => console.log('pressed')} />
+              <CardList namaUser={dataUser?.username ?? ''} namaList={dat.title} key={String(idx)} id={dat.id} refetch={refetch} namaCard={dat.title} />
             )}
             {isNewList ?
               <Box

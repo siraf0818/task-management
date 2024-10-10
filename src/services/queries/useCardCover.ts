@@ -12,7 +12,11 @@ const handleRequest = async (id: number) => {
 };
 
 export default function useCardCover(id: number) {
-  return useQuery<GetCardCoverResponse>(["CardCover", id], () =>
-    handleRequest(id)
+  return useQuery<GetCardCoverResponse>(
+    ["CardCover", id],
+    () => handleRequest(id),
+    {
+      enabled: !!id,
+    }
   );
 }

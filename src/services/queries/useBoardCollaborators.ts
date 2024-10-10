@@ -16,6 +16,9 @@ const handleRequest = async (id: number) => {
 export default function useBoardCollaborators(id: number) {
   return useQuery<GetBoardCollaboratorsResponse>(
     ["BoardCollaborators", id],
-    () => handleRequest(id)
+    () => handleRequest(id),
+    {
+      enabled: !!id,
+    }
   );
 }

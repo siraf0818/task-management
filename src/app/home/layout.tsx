@@ -56,7 +56,7 @@ export default function PageLayout(props: Props) {
     const { logout, workspaceId, setWorkspaceId } = useAuth();
     const { setIsOpenModalUser, setIsOpenModalBoard, setIsOpenModalWorkspace, setWorksId, isFetchingItems, cancelFetchingItems } = useModal();
     const { data: dataWorkspace, refetch: refetchWorkspace } = useWorkspace();
-    const { data: dataUser } = useUserData();
+    const { data: dataUser, refetch: refetchUser } = useUserData();
     const { data: dataUserInvitations, refetch: refetchInvitations } = useWorkspaceInvitations();
     const { data: dataNotifications, refetch: refetchNotifications } = useNotifications();
 
@@ -210,12 +210,13 @@ export default function PageLayout(props: Props) {
                 refetchWorkspace();
                 refetchInvitations();
                 refetchNotifications();
+                refetchUser();
             } catch (error) {
                 console.log(error)
                 handleErrorResponse(error);
             }
         },
-        [handleErrorResponse, refetchInvitations, refetchNotifications, refetchWorkspace],
+        [handleErrorResponse, refetchInvitations, refetchNotifications, refetchUser, refetchWorkspace],
     );
 
     const accept = useCallback(

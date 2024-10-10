@@ -26,7 +26,7 @@ import axios from "../services/axios";
 import { useQueryClient } from "react-query";
 import Swal from "sweetalert2";
 import defaultAxios, { AxiosError } from "axios";
-import { DefaultResponse, TBVisibility, TUser, TWorkspace, TWType } from "@/constants/types";
+import { DefaultResponse, GetUserDataResponse, TBVisibility, TUser, TWorkspace, TWType } from "@/constants/types";
 import LoadingButton from "@mui/lab/LoadingButton";
 import useBoardVisibilities from "@/services/queries/useBoardVisibilities";
 import useWorkspace from "@/services/queries/useWorkspace";
@@ -511,14 +511,14 @@ const ModalProvider = ({ children }: IModalContext) => {
                             User
                         </Typography>
                         <Autocomplete
+                            id="user"
                             fullWidth
                             size="medium"
                             disablePortal
-                            id="combo-box-demo"
                             options={dataAUssers?.filter((li) => li.id !== dataUser?.user_id) ?? []}
-                            getOptionLabel={(option) => option.username}
+                            getOptionLabel={(option) => option.username ?? ''}
                             onChange={(_event, user: any) => {
-                                setValueInviteUser('invited_user_id', user.id)
+                                setValueInviteUser('invited_user_id', user?.id ?? 0)
                             }
                             }
                             renderInput={(params) => <TextField {...params} />}
@@ -655,7 +655,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                                         onChange={(_event, newType: any,) => {
                                             onChange(newType);
                                         }}
-                                        getOptionLabel={(option) => option.name}
+                                        getOptionLabel={(option) => option.name ?? ''}
                                         renderInput={(params) => <TextField {...params}
                                             error={Boolean(errorsCreateBoard.workspace)}
                                             helperText={
@@ -689,7 +689,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                                         onChange={(_event, newType: any,) => {
                                             onChange(newType);
                                         }}
-                                        getOptionLabel={(option) => option.name}
+                                        getOptionLabel={(option) => option.name ?? ''}
                                         renderInput={(params) => <TextField {...params}
                                             error={Boolean(errorsCreateBoard.visibility)}
                                             helperText={
@@ -831,7 +831,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                                         onChange={(_event, newType: any,) => {
                                             onChange(newType);
                                         }}
-                                        getOptionLabel={(option) => option.name}
+                                        getOptionLabel={(option) => option.name ?? ''}
                                         renderInput={(params) => <TextField {...params}
                                             error={Boolean(errorsCreateWorkspace.type_id)}
                                             helperText={
@@ -845,11 +845,13 @@ const ModalProvider = ({ children }: IModalContext) => {
                             />
                         </Stack>
                         <Stack flexDirection={"column"} gap={0.5}>
-                            <Typography
-                                fontWeight={500}
+                            <Stack flexDirection={'row'} gap={0.5}>
+                                <Typography
+                                    fontWeight={500}
 
-                            >
-                                Workspace description{" "}
+                                >
+                                    Workspace description
+                                </Typography>
                                 <Typography
                                     fontWeight={500}
                                     display={"inline"}
@@ -857,7 +859,7 @@ const ModalProvider = ({ children }: IModalContext) => {
                                 >
                                     (optional)
                                 </Typography>
-                            </Typography>
+                            </Stack>
                             <Controller
                                 control={controlCreateWorkspace}
                                 name="description"

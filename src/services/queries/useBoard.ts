@@ -12,5 +12,7 @@ const handleRequest = async (id: number) => {
 };
 
 export default function useBoard(id: number) {
-  return useQuery<GetBoardResponse>(["Board", id], () => handleRequest(id));
+  return useQuery<GetBoardResponse>(["Board", id], () => handleRequest(id), {
+    enabled: !!id,
+  });
 }

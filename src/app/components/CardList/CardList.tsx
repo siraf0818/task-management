@@ -12,21 +12,20 @@ import Icon from "@mdi/react";
 import useListCard from "@/services/queries/useListCard";
 import CardListCard from "../CardListCard/CardListCard";
 import CloseIcon from '@mui/icons-material/Close';
-
 interface ICardListProps {
     id: number;
+    namaUser: string;
     namaCard: string;
     namaList: string;
     refetch?: () => void;
-    click: () => void;
 }
 
 const CardList = ({
     id,
     namaCard,
+    namaUser,
     namaList,
     refetch,
-    click,
 }: ICardListProps) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -248,7 +247,7 @@ const CardList = ({
                     maxHeight: "67vh",
                 }}>
                     {dataListCard && dataListCard.map((dat, idx) =>
-                        <CardListCard namaList={namaList} desc={dat.description} key={String(idx)} id={dat.card_id} refetch={refetch} namaCard={dat.title} click={() => console.log('pressed')} />
+                        <CardListCard idList={dat.list_id} namaUser={namaUser} namaList={namaList} desc={dat.description} key={String(idx)} id={dat.card_id} refetch={refetchListCard} namaCard={dat.title} />
                     )}
                 </Stack>
 

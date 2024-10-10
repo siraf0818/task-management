@@ -14,7 +14,11 @@ const handleRequest = async (id: number) => {
 };
 
 export default function useWorkspaceMembers(id: number) {
-  return useQuery<GetWorkspaceMembersResponse>(["WorkspaceMembers", id], () =>
-    handleRequest(id)
+  return useQuery<GetWorkspaceMembersResponse>(
+    ["WorkspaceMembers", id],
+    () => handleRequest(id),
+    {
+      enabled: !!id,
+    }
   );
 }

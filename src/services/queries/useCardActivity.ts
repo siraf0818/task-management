@@ -12,7 +12,11 @@ const handleRequest = async (id: number) => {
 };
 
 export default function useCardActivity(id: number) {
-  return useQuery<GetCardActivityResponse>(["CardActivity", id], () =>
-    handleRequest(id)
+  return useQuery<GetCardActivityResponse>(
+    ["CardActivity", id],
+    () => handleRequest(id),
+    {
+      enabled: !!id,
+    }
   );
 }

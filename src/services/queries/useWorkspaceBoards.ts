@@ -14,7 +14,11 @@ const handleRequest = async (id: number) => {
 };
 
 export default function useWorkspaceBoards(id: number) {
-  return useQuery<GetWorkspaceBoardsResponse>(["WorkspaceBoards", id], () =>
-    handleRequest(id)
+  return useQuery<GetWorkspaceBoardsResponse>(
+    ["WorkspaceBoards", id],
+    () => handleRequest(id),
+    {
+      enabled: !!id,
+    }
   );
 }

@@ -14,7 +14,11 @@ const handleRequest = async (id: number) => {
 };
 
 export default function useCardChecklist(id: number) {
-  return useQuery<GetCardChecklistResponse>(["CardChecklist", id], () =>
-    handleRequest(id)
+  return useQuery<GetCardChecklistResponse>(
+    ["CardChecklist", id],
+    () => handleRequest(id),
+    {
+      enabled: !!id,
+    }
   );
 }

@@ -12,7 +12,11 @@ const handleRequest = async (id: number) => {
 };
 
 export default function useCardLabel(id: number) {
-  return useQuery<GetCardLabelResponse>(["CardLabel", id], () =>
-    handleRequest(id)
+  return useQuery<GetCardLabelResponse>(
+    ["CardLabel", id],
+    () => handleRequest(id),
+    {
+      enabled: !!id,
+    }
   );
 }
